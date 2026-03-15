@@ -16,22 +16,40 @@ if (!token) {
     </div>
   `;
 } else {
-  cargarDetalle();
+  cargarDetallePedido();
 }
 
-async function cargarDetalle() {
+async function cargarDetallePedido() {
+  const cont = document.getElementById('detallePedido');
+  if (!cont) return;
+
+  cont.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary" role="status"></div><p class="mt-2">Cargando detalles del pedido...</p></div>';
+
   try {
     const res = await fetch(`http://localhost:5000/pedido/${id}`, {
       headers: { 'Authorization': `Bearer ${token}` }
     });
 
-    if (!res.ok) throw new Error('Pedido no encontrado');
+    if (!res.ok) {
+      if (res.status === 404) {
+        throw new Error('Pedido no encontrado');
+      } else if (res.status === 401) {
+        throw new Error('No autorizado');
+      } else {
+        throw new Error('Error al cargar el pedido');
+      }
+    }
+
     const pedido = await res.json();
+
+    if (!pedido || Object.keys(pedido).length === 0) {
+      throw new Error('Pedido no encontrado');
+    }
 
     cont.innerHTML = `
       <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
-          <h3 class="mb-0">Pedido #${pedido.id}</h3>
+          <h3 class="mb-0">Pedido #${pedido.id_pedido || pedido.id}</h3>
           <span class="badge ${badgeClass[pedido.id_estado]}">${estados[pedido.id_estado]}</span>
         </div>
         <div class="card-body">
@@ -83,12 +101,26 @@ async function cargarDetalle() {
     `;
   } catch (error) {
     console.error('Error:', error);
+    let errorMessage = 'No pudimos cargar los detalles del pedido.';
+    let errorTitle = 'Error al cargar pedido';
+    
+    if (error.message === 'Pedido no encontrado') {
+      errorTitle = 'Pedido No Encontrado';
+      errorMessage = 'El pedido que buscas no existe o ha sido eliminado.';
+    } else if (error.message === 'No autorizado') {
+      errorTitle = 'Acceso Denegado';
+      errorMessage = 'No tienes permisos para ver este pedido.';
+    }
+    
     cont.innerHTML = `
       <div class="text-center py-5">
         <div style="font-size:48px;">❌</div>
-        <h4 class="mt-3">Error al cargar pedido</h4>
-        <p class="text-muted">No pudimos cargar los detalles del pedido.</p>
-        <a href="mis-pedidos.html" class="btn btn-dark">Volver a Mis Pedidos</a>
+        <h4 class="mt-3">${errorTitle}</h4>
+        <p class="text-muted">${errorMessage}</p>
+        <div class="d-flex gap-2 justify-content-center">
+          <a href="mis-pedidos.html" class="btn btn-dark">Volver a Mis Pedidos</a>
+          <button onclick="window.history.back()" class="btn btn-outline-secondary">Volver Atrás</button>
+        </div>
       </div>
     `;
   }

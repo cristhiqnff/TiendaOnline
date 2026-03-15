@@ -1,17 +1,3 @@
-// Mostrar resumen del carrito
-function getCarrito() {
-  return JSON.parse(localStorage.getItem('carrito') || '[]');
-}
-
-function actualizarBadgeCarrito() {
-  const badge = document.getElementById('cartCount');
-  if (!badge) return;
-  const carrito = getCarrito();
-  const total = carrito.reduce((acc, item) => acc + (Number(item.cantidad) || 0), 0);
-  badge.textContent = String(total);
-  badge.style.display = total > 0 ? 'inline-block' : 'none';
-}
-
 async function cargarDepartamentos() {
   const deptoEl = document.getElementById('depto');
   if (!deptoEl) return;

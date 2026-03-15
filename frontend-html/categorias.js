@@ -10,18 +10,19 @@ window.initCategorias = function() {
   setupEventListeners();
 };
 
-function loadCategorias() {
-  // Simulación de datos - reemplazar con llamada real a API
-  categorias = [
-    { id: 1, nombre: 'Electrónica', icono: '📱', productos: 245 },
-    { id: 2, nombre: 'Ropa', icono: '👕', productos: 189 },
-    { id: 3, nombre: 'Hogar', icono: '🏠', productos: 156 },
-    { id: 4, nombre: 'Deportes', icono: '⚽', productos: 98 },
-    { id: 5, nombre: 'Libros', icono: '📚', productos: 234 },
-    { id: 6, nombre: 'Juguetes', icono: '🎮', productos: 167 }
-  ];
-  
-  renderCategorias();
+async function loadCategorias() {
+  try {
+    const res = await fetch('http://localhost:5000/categoria');
+    if (!res.ok) throw new Error('Error al cargar categorías');
+    categorias = await res.json();
+    renderCategorias();
+  } catch (error) {
+    console.error('Error:', error);
+    const container = document.getElementById('categoriasGrid');
+    if (container) {
+      container.innerHTML = '<div class="alert alert-danger">Error al cargar categorías. Intenta nuevamente.</div>';
+    }
+  }
 }
 
 function renderCategorias() {
@@ -95,23 +96,51 @@ function verCategoria(id) {
   window.location.href = `productos.html?categoria=${id}`;
 }
 
-function editarCategoria(id) {
+async function editarCategoria(id) {
   const categoria = categorias.find(c => c.id === id);
   if (categoria) {
     const nuevoNombre = prompt('Editar nombre de la categoría:', categoria.nombre);
     if (nuevoNombre && nuevoNombre.trim()) {
-      categoria.nombre = nuevoNombre.trim();
-      renderCategorias();
-      showToast('Categoría actualizada correctamente', 'success');
+      try {
+        const res = await fetch(`http://localhost:5000/categoria/${id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${window.session.getToken()}`
+          },
+          body: JSON.stringify({ nombre: nuevoNombre.trim() })
+        });
+        
+        if (!res.ok) throw new Error('Error al actualizar categoría');
+        
+        await loadCategorias();
+        showToast('Categoría actualizada correctamente', 'success');
+      } catch (error) {
+        console.error('Error:', error);
+        showToast('Error al actualizar categoría', 'error');
+      }
     }
   }
 }
 
-function eliminarCategoria(id) {
+async function eliminarCategoria(id) {
   if (confirm('¿Estás seguro de que deseas eliminar esta categoría?')) {
-    categorias = categorias.filter(c => c.id !== id);
-    renderCategorias();
-    showToast('Categoría eliminada correctamente', 'success');
+    try {
+      const res = await fetch(`http://localhost:5000/categoria/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${window.session.getToken()}`
+        }
+      });
+      
+      if (!res.ok) throw new Error('Error al eliminar categoría');
+      
+      await loadCategorias();
+      showToast('Categoría eliminada correctamente', 'success');
+    } catch (error) {
+      console.error('Error:', error);
+      showToast('Error al eliminar categoría', 'error');
+    }
   }
 }
 

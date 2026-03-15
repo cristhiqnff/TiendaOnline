@@ -1,10 +1,5 @@
 // Punto de entrada principal
 document.addEventListener('DOMContentLoaded', async () => {
-  // Inicializar Autenticación y Nav con el sistema UNIFICADO
-  if (window.session) {
-    window.session.updateNavbar();
-  }
-
   // Inicializar Carrito badge
   if (window.cart) cart.actualizarBadgeCarrito();
 

@@ -4,29 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Productos - Tienda Online</title>
-  <script>
-    (function protegerProductos() {
-      try {
-        const token = window.session.getToken();
-        const user = window.session.getUser();
-        const rol = user ? user.rol : null;
-
-        const permitido = rol === 'admin' || rol === 'vendedor';
-
-        if (!token) {
-          location.replace('login.html');
-          return;
-        }
-
-        if (!permitido) {
-          location.replace('index.html');
-        }
-      } catch (e) {
-        console.error('Error verificando acceso:', e);
-        location.replace('login.html');
-      }
-    })();
-  </script>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
   <link rel="stylesheet" href="styles.css">
 </head>
@@ -202,12 +179,24 @@
   </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="session-manager.js"></script>
+  <script src="session.js"></script>
+  <script src="route-guard.js"></script>
+  <script src="universal-init.js"></script>
   <script src="cart.js"></script>
   <script src="ui.js"></script>
   <script src="producto-crud.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
+      // Protección de página - solo admin y vendedor
+      const token = window.session.getToken();
+      const user = window.session.getUser();
+      const rol = user ? user.rol : null;
+      
+      if (!token || (rol !== 'admin' && rol !== 'vendedor')) {
+        location.replace(!token ? 'login.html' : 'index.html');
+        return;
+      }
+      
       // Actualizar año actual
       if (window.ui && window.ui.setYear) {
         window.ui.setYear();

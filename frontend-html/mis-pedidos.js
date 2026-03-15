@@ -110,7 +110,7 @@ function renderPedidos(pedidos) {
           <div class="col-md-8">
             <h6 class="card-title">Productos</h6>
             <div class="mb-3">
-              ${pedido.productos.map(producto => `
+              ${pedido.detalles.map(producto => `
                 <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
                   <div>
                     <strong>${producto.nombre}</strong>

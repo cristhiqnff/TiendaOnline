@@ -1,5 +1,33 @@
 // Solicitudes para ser vendedor
 
+// Función para mostrar notificaciones en tiempo real
+function mostrarNotificacionSolicitud(mensaje, tipo = 'info') {
+  // Crear elemento de notificación
+  const notification = document.createElement('div');
+  notification.className = `alert alert-${tipo} alert-dismissible fade show position-fixed`;
+  notification.style.cssText = `
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    min-width: 300px;
+    max-width: 400px;
+  `;
+  notification.innerHTML = `
+    <div class="d-flex align-items-center">
+      <div class="flex-grow-1">${mensaje}</div>
+      <button type="button" class="btn-close ms-2" data-bs-dismiss="alert"></button>
+    </div>
+  `;
+  
+  document.body.appendChild(notification);
+  
+  // Auto-eliminar después de 5 segundos
+  setTimeout(() => {
+    notification.classList.remove('show');
+    setTimeout(() => notification.remove(), 300);
+  }, 5000);
+}
+
 async function cargarSolicitudesVendedor() {
   const cont = document.getElementById('solicitudesVendedorList');
   if (!cont) return;

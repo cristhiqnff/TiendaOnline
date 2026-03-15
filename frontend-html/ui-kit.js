@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+// UI Kit - Componentes Reutilizables - Tienda Online
 ;(function initUIKit(global) {
   function escapeHtml(str) {
     return String(str ?? '')
@@ -6,300 +6,188 @@
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#039;');
+      .replace(/'/g, '&#39;');
   }
 
-  function showToast(message, type = 'info', options = {}) {
-    const containerId = options.containerId || 'globalToastContainer';
-    const durationMs = Number(options.durationMs) || 2600;
-    let container = document.getElementById(containerId);
-    if (!container) {
-      container = document.createElement('div');
-      container.id = containerId;
-      container.style.cssText = 'position:fixed;top:16px;right:16px;z-index:2200;display:flex;flex-direction:column;gap:8px;max-width:360px;';
+  function formatCurrency(amount) {
+    return new Intl.NumberFormat('es-CO', {
+      style: 'currency',
+      currency: 'COP'
+    }).format(amount || 0);
+  }
+
+  function formatDate(date, options = {}) {
+    const defaultOptions = {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    };
+    return new Date(date).toLocaleDateString('es-CO', { ...defaultOptions, ...options });
+  }
+
+  function showToast(message, type = 'info') {
+    const toastContainer = document.getElementById('toastContainer') || (() => {
+      const container = document.createElement('div');
+      container.id = 'toastContainer';
+      container.className = 'position-fixed top-0 end-0 p-3';
+      container.style.zIndex = '1050';
       document.body.appendChild(container);
-    }
+      return container;
+    })();
 
-    const tone = type === 'success'
-      ? { bg: '#198754', border: '#146c43' }
-      : type === 'warning'
-        ? { bg: '#ffc107', border: '#e6ac00', text: '#111' }
-        : type === 'error'
-          ? { bg: '#dc3545', border: '#b02a37' }
-          : { bg: '#0d6efd', border: '#0a58ca' };
+    const toastId = 'toast-' + Date.now();
+    const toastHtml = `
+      <div id="${toastId}" class="toast align-items-center text-white bg-${type} border-0" role="alert">
+        <div class="d-flex">
+          <div class="toast-body">${escapeHtml(message)}</div>
+          <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+        </div>
+      </div>
+    `;
 
-    const toast = document.createElement('div');
-    toast.style.cssText = `background:${tone.bg};border:1px solid ${tone.border};color:${tone.text || '#fff'};padding:10px 12px;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,.2);font-size:14px;opacity:0;transform:translateY(-4px);transition:all .2s ease;`;
-    toast.textContent = String(message || '');
-    container.appendChild(toast);
-    requestAnimationFrame(() => {
-      toast.style.opacity = '1';
-      toast.style.transform = 'translateY(0)';
+    toastContainer.insertAdjacentHTML('beforeend', toastHtml);
+    const toastElement = document.getElementById(toastId);
+    const toast = new bootstrap.Toast(toastElement);
+    toast.show();
+
+    toastElement.addEventListener('hidden.bs.toast', () => {
+      toastElement.remove();
     });
-    setTimeout(() => {
-      toast.style.opacity = '0';
-      toast.style.transform = 'translateY(-4px)';
-      setTimeout(() => toast.remove(), 220);
-    }, durationMs);
   }
 
-  function renderImagePreview(previewContainer, imageUrl) {
-    const preview = typeof previewContainer === 'string'
-      ? document.getElementById(previewContainer)
-      : previewContainer;
-    if (!preview) return;
-    if (!imageUrl) {
-      preview.innerHTML = '';
-      return;
+  function showLoading(element, text = 'Cargando...') {
+    if (typeof element === 'string') {
+      element = document.getElementById(element);
     }
-    preview.innerHTML = `<img src="${escapeHtml(imageUrl)}" alt="Vista previa" style="max-height:180px;max-width:100%;object-fit:contain;border-radius:8px;" onerror="this.outerHTML='<span class=\\'text-muted small\\'>No se pudo cargar la imagen</span>'">`;
+    if (!element) return;
+
+    element.disabled = true;
+    element.dataset.originalText = element.textContent || element.innerHTML;
+    element.innerHTML = `<span class="spinner-border spinner-border-sm me-2"></span>${text}`;
   }
 
-  function bindImageUploader(config) {
-    const inputUrl = document.getElementById(config.inputUrlId);
-    const inputFile = document.getElementById(config.inputFileId);
-    const dropZone = config.dropZoneId ? document.getElementById(config.dropZoneId) : null;
-    const maxSizeBytes = Number(config.maxSizeBytes) || 2 * 1024 * 1024;
-    const onLoaded = typeof config.onLoaded === 'function' ? config.onLoaded : null;
-    const onError = typeof config.onError === 'function' ? config.onError : null;
-    const onInvalidType = typeof config.onInvalidType === 'function' ? config.onInvalidType : null;
-    const onTooLarge = typeof config.onTooLarge === 'function' ? config.onTooLarge : null;
-
-    if (!inputUrl || !inputFile) return;
-    if (inputFile.dataset.bound === '1') return;
-    inputFile.dataset.bound = '1';
-
-    function notifyError(message, kind) {
-      if (onError) onError(message, kind);
-      else showToast(message, 'error');
+  function hideLoading(element) {
+    if (typeof element === 'string') {
+      element = document.getElementById(element);
     }
+    if (!element) return;
 
-    function processFile(file) {
-      if (!file) return;
-      if (!String(file.type || '').startsWith('image/')) {
-        if (onInvalidType) onInvalidType(file);
-        else notifyError('El archivo seleccionado no es una imagen válida.', 'invalid_type');
-        return;
+    element.disabled = false;
+    if (element.dataset.originalText) {
+      element.innerHTML = element.dataset.originalText;
+      delete element.dataset.originalText;
+    }
+  }
+
+  function showModal(title, body, options = {}) {
+    const modalId = 'modal-' + Date.now();
+    const modalHtml = `
+      <div class="modal fade" id="${modalId}" tabindex="-1">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">${escapeHtml(title)}</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">${body}</div>
+            ${options.footer ? `<div class="modal-footer">${options.footer}</div>` : ''}
+          </div>
+        </div>
+      </div>
+    `;
+
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+    const modalElement = document.getElementById(modalId);
+    const modal = new bootstrap.Modal(modalElement);
+
+    modalElement.addEventListener('hidden.bs.modal', () => {
+      modalElement.remove();
+    });
+
+    modal.show();
+    return modal;
+  }
+
+  function confirmAction(message, onConfirm, options = {}) {
+    const defaultOptions = {
+      title: 'Confirmar acción',
+      confirmText: 'Confirmar',
+      cancelText: 'Cancelar',
+      confirmClass: 'btn-primary'
+    };
+
+    const opts = { ...defaultOptions, ...options };
+    const footer = `
+      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${opts.cancelText}</button>
+      <button type="button" class="btn ${opts.confirmClass}" id="confirmBtn">${opts.confirmText}</button>
+    `;
+
+    const modal = showModal(opts.title, `<p>${escapeHtml(message)}</p>`, { footer });
+    
+    const confirmBtn = document.getElementById('confirmBtn');
+    confirmBtn.addEventListener('click', () => {
+      modal.hide();
+      if (typeof onConfirm === 'function') {
+        onConfirm();
       }
-      if (file.size > maxSizeBytes) {
-        if (onTooLarge) onTooLarge(file);
-        else notifyError('La imagen supera el tamaño permitido.', 'too_large');
-        return;
-      }
-      const reader = new FileReader();
-      reader.onload = () => {
-        const dataUrl = typeof reader.result === 'string' ? reader.result : '';
-        if (!dataUrl) return;
-        inputUrl.value = dataUrl;
-        if (onLoaded) onLoaded(dataUrl, file);
+    });
+  }
+
+  function sanitizeInput(input) {
+    if (typeof input !== 'string') return input;
+    return input.trim().replace(/[<>]/g, '');
+  }
+
+  function validateEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  }
+
+  function validatePhone(phone) {
+    const phoneRegex = /^[0-9+\-\s()]{7,}$/;
+    return phoneRegex.test(phone);
+  }
+
+  function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+      const later = () => {
+        clearTimeout(timeout);
+        func(...args);
       };
-      reader.onerror = () => notifyError('No se pudo leer la imagen seleccionada.', 'read_error');
-      reader.readAsDataURL(file);
-    }
-
-    inputUrl.addEventListener('input', () => {
-      if (onLoaded) onLoaded(inputUrl.value.trim() || '', null);
-    });
-    inputFile.addEventListener('change', () => {
-      const file = inputFile.files && inputFile.files[0];
-      processFile(file);
-    });
-
-    if (dropZone) {
-      dropZone.addEventListener('click', () => inputFile.click());
-      dropZone.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          inputFile.click();
-        }
-      });
-      ['dragenter', 'dragover'].forEach((evt) => {
-        dropZone.addEventListener(evt, (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          dropZone.classList.add('is-dragover');
-        });
-      });
-      ['dragleave', 'drop'].forEach((evt) => {
-        dropZone.addEventListener(evt, (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          dropZone.classList.remove('is-dragover');
-        });
-      });
-      dropZone.addEventListener('drop', (e) => {
-        const file = e.dataTransfer?.files && e.dataTransfer.files[0];
-        if (!file) return;
-        processFile(file);
-        try {
-          const dt = new DataTransfer();
-          dt.items.add(file);
-          inputFile.files = dt.files;
-        } catch {
-          // Ignore assignment if browser blocks it.
-        }
-      });
-    }
+      clearTimeout(timeout);
+      timeout = setTimeout(later, wait);
+    };
   }
 
+  function throttle(func, limit) {
+    let inThrottle;
+    return function() {
+      const args = arguments;
+      const context = this;
+      if (!inThrottle) {
+        func.apply(context, args);
+        inThrottle = true;
+        setTimeout(() => inThrottle = false, limit);
+      }
+    };
+  }
+
+  // Exponer funciones globalmente
   global.UIKit = {
     escapeHtml,
+    formatCurrency,
+    formatDate,
     showToast,
-    renderImagePreview,
-    bindImageUploader
+    showLoading,
+    hideLoading,
+    showModal,
+    confirmAction,
+    sanitizeInput,
+    validateEmail,
+    validatePhone,
+    debounce,
+    throttle
   };
+
 })(window);
-
-=======
-;(function initUIKit(global) {
-  function escapeHtml(str) {
-    return String(str ?? '')
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#039;');
-  }
-
-  function showToast(message, type = 'info', options = {}) {
-    const containerId = options.containerId || 'globalToastContainer';
-    const durationMs = Number(options.durationMs) || 2600;
-    let container = document.getElementById(containerId);
-    if (!container) {
-      container = document.createElement('div');
-      container.id = containerId;
-      container.style.cssText = 'position:fixed;top:16px;right:16px;z-index:2200;display:flex;flex-direction:column;gap:8px;max-width:360px;';
-      document.body.appendChild(container);
-    }
-
-    const tone = type === 'success'
-      ? { bg: '#198754', border: '#146c43' }
-      : type === 'warning'
-        ? { bg: '#ffc107', border: '#e6ac00', text: '#111' }
-        : type === 'error'
-          ? { bg: '#dc3545', border: '#b02a37' }
-          : { bg: '#0d6efd', border: '#0a58ca' };
-
-    const toast = document.createElement('div');
-    toast.style.cssText = `background:${tone.bg};border:1px solid ${tone.border};color:${tone.text || '#fff'};padding:10px 12px;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,.2);font-size:14px;opacity:0;transform:translateY(-4px);transition:all .2s ease;`;
-    toast.textContent = String(message || '');
-    container.appendChild(toast);
-    requestAnimationFrame(() => {
-      toast.style.opacity = '1';
-      toast.style.transform = 'translateY(0)';
-    });
-    setTimeout(() => {
-      toast.style.opacity = '0';
-      toast.style.transform = 'translateY(-4px)';
-      setTimeout(() => toast.remove(), 220);
-    }, durationMs);
-  }
-
-  function renderImagePreview(previewContainer, imageUrl) {
-    const preview = typeof previewContainer === 'string'
-      ? document.getElementById(previewContainer)
-      : previewContainer;
-    if (!preview) return;
-    if (!imageUrl) {
-      preview.innerHTML = '';
-      return;
-    }
-    preview.innerHTML = `<img src="${escapeHtml(imageUrl)}" alt="Vista previa" style="max-height:180px;max-width:100%;object-fit:contain;border-radius:8px;" onerror="this.outerHTML='<span class=\\'text-muted small\\'>No se pudo cargar la imagen</span>'">`;
-  }
-
-  function bindImageUploader(config) {
-    const inputUrl = document.getElementById(config.inputUrlId);
-    const inputFile = document.getElementById(config.inputFileId);
-    const dropZone = config.dropZoneId ? document.getElementById(config.dropZoneId) : null;
-    const maxSizeBytes = Number(config.maxSizeBytes) || 2 * 1024 * 1024;
-    const onLoaded = typeof config.onLoaded === 'function' ? config.onLoaded : null;
-    const onError = typeof config.onError === 'function' ? config.onError : null;
-    const onInvalidType = typeof config.onInvalidType === 'function' ? config.onInvalidType : null;
-    const onTooLarge = typeof config.onTooLarge === 'function' ? config.onTooLarge : null;
-
-    if (!inputUrl || !inputFile) return;
-    if (inputFile.dataset.bound === '1') return;
-    inputFile.dataset.bound = '1';
-
-    function notifyError(message, kind) {
-      if (onError) onError(message, kind);
-      else showToast(message, 'error');
-    }
-
-    function processFile(file) {
-      if (!file) return;
-      if (!String(file.type || '').startsWith('image/')) {
-        if (onInvalidType) onInvalidType(file);
-        else notifyError('El archivo seleccionado no es una imagen válida.', 'invalid_type');
-        return;
-      }
-      if (file.size > maxSizeBytes) {
-        if (onTooLarge) onTooLarge(file);
-        else notifyError('La imagen supera el tamaño permitido.', 'too_large');
-        return;
-      }
-      const reader = new FileReader();
-      reader.onload = () => {
-        const dataUrl = typeof reader.result === 'string' ? reader.result : '';
-        if (!dataUrl) return;
-        inputUrl.value = dataUrl;
-        if (onLoaded) onLoaded(dataUrl, file);
-      };
-      reader.onerror = () => notifyError('No se pudo leer la imagen seleccionada.', 'read_error');
-      reader.readAsDataURL(file);
-    }
-
-    inputUrl.addEventListener('input', () => {
-      if (onLoaded) onLoaded(inputUrl.value.trim() || '', null);
-    });
-    inputFile.addEventListener('change', () => {
-      const file = inputFile.files && inputFile.files[0];
-      processFile(file);
-    });
-
-    if (dropZone) {
-      dropZone.addEventListener('click', () => inputFile.click());
-      dropZone.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          inputFile.click();
-        }
-      });
-      ['dragenter', 'dragover'].forEach((evt) => {
-        dropZone.addEventListener(evt, (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          dropZone.classList.add('is-dragover');
-        });
-      });
-      ['dragleave', 'drop'].forEach((evt) => {
-        dropZone.addEventListener(evt, (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          dropZone.classList.remove('is-dragover');
-        });
-      });
-      dropZone.addEventListener('drop', (e) => {
-        const file = e.dataTransfer?.files && e.dataTransfer.files[0];
-        if (!file) return;
-        processFile(file);
-        try {
-          const dt = new DataTransfer();
-          dt.items.add(file);
-          inputFile.files = dt.files;
-        } catch {
-          // Ignore assignment if browser blocks it.
-        }
-      });
-    }
-  }
-
-  global.UIKit = {
-    escapeHtml,
-    showToast,
-    renderImagePreview,
-    bindImageUploader
-  };
-})(window);
-
->>>>>>> 9a3349cf38f58812a05b80794fd85dd2c5194e20

@@ -234,11 +234,234 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
+// Funciones de filtrado y paginación
+let currentPage = 1;
+const itemsPerPage = 12;
+let allProducts = [];
+let filteredProducts = [];
+
+function setupFiltersAndPagination() {
+  const container = document.getElementById('productos');
+  if (!container) return;
+
+  // Agregar controles de paginación y filtros
+  const controlsHtml = `
+    <div class="row mb-4">
+      <div class="col-md-6">
+        <div class="input-group">
+          <span class="input-group-text"><i class="fas fa-search"></i></span>
+          <input type="text" class="form-control" id="searchInput" placeholder="Buscar productos...">
+        </div>
+      </div>
+      <div class="col-md-3">
+        <select class="form-select" id="categoryFilter">
+          <option value="">Todas las categorías</option>
+        </select>
+      </div>
+      <div class="col-md-3">
+        <select class="form-select" id="sortBy">
+          <option value="nombre">Nombre</option>
+          <option value="precio-asc">Precio: Menor a Mayor</option>
+          <option value="precio-desc">Precio: Mayor a Menor</option>
+        </select>
+      </div>
+    </div>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <div id="paginationInfo" class="text-muted"></div>
+      <nav id="paginationControls"></nav>
+    </div>
+  `;
+
+  container.insertAdjacentHTML('beforebegin', controlsHtml);
+
+  // Event listeners
+  document.getElementById('searchInput').addEventListener('input', applyFilters);
+  document.getElementById('categoryFilter').addEventListener('change', applyFilters);
+  document.getElementById('sortBy').addEventListener('change', applyFilters);
+}
+
+function applyFilters() {
+  const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+  const categoryFilter = document.getElementById('categoryFilter').value;
+  const sortBy = document.getElementById('sortBy').value;
+
+  // Filtrar productos
+  filteredProducts = allProducts.filter(product => {
+    const matchesSearch = !searchTerm || 
+      product.nombre.toLowerCase().includes(searchTerm) ||
+      product.descripcion?.toLowerCase().includes(searchTerm) ||
+      product.categoria?.toLowerCase().includes(searchTerm);
+    
+    const matchesCategory = !categoryFilter || product.categoria === categoryFilter;
+    
+    return matchesSearch && matchesCategory;
+  });
+
+  // Ordenar productos
+  filteredProducts.sort((a, b) => {
+    switch (sortBy) {
+      case 'nombre':
+        return a.nombre.localeCompare(b.nombre);
+      case 'precio-asc':
+        return a.precio - b.precio;
+      case 'precio-desc':
+        return b.precio - a.precio;
+      default:
+        return 0;
+    }
+  });
+
+  currentPage = 1;
+  renderPaginatedProducts();
+}
+
+function renderPaginatedProducts() {
+  const container = document.getElementById('productos');
+  if (!container) return;
+
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const productsToShow = filteredProducts.slice(startIndex, endIndex);
+
+  // Renderizar productos
+  container.innerHTML = productsToShow.map(product => renderCardTemplate(product)).join('');
+
+  // Actualizar información de paginación
+  updatePaginationInfo();
+  
+  // Renderizar controles de paginación
+  renderPaginationControls();
+
+  // Actualizar badge del carrito
+  if (window.cart && window.cart.actualizarBadgeCarrito) {
+    window.cart.actualizarBadgeCarrito();
+  }
+}
+
+function updatePaginationInfo() {
+  const info = document.getElementById('paginationInfo');
+  if (!info) return;
+
+  const totalItems = filteredProducts.length;
+  const startItem = (currentPage - 1) * itemsPerPage + 1;
+  const endItem = Math.min(currentPage * itemsPerPage, totalItems);
+
+  info.textContent = totalItems > 0 
+    ? `Mostrando ${startItem}-${endItem} de ${totalItems} productos`
+    : 'No se encontraron productos';
+}
+
+function renderPaginationControls() {
+  const controls = document.getElementById('paginationControls');
+  if (!controls) return;
+
+  const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
+  
+  if (totalPages <= 1) {
+    controls.innerHTML = '';
+    return;
+  }
+
+  let paginationHtml = '<ul class="pagination pagination-sm mb-0">';
+  
+  // Botón anterior
+  paginationHtml += `
+    <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+      <a class="page-link" href="#" onclick="changePage(${currentPage - 1}); return false;">
+        <i class="fas fa-chevron-left"></i>
+      </a>
+    </li>
+  `;
+
+  // Números de página
+  const maxVisiblePages = 5;
+  let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+  let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+  
+  if (endPage - startPage < maxVisiblePages - 1) {
+    startPage = Math.max(1, endPage - maxVisiblePages + 1);
+  }
+
+  for (let i = startPage; i <= endPage; i++) {
+    paginationHtml += `
+      <li class="page-item ${i === currentPage ? 'active' : ''}">
+        <a class="page-link" href="#" onclick="changePage(${i}); return false;">${i}</a>
+      </li>
+    `;
+  }
+
+  // Botón siguiente
+  paginationHtml += `
+    <li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
+      <a class="page-link" href="#" onclick="changePage(${currentPage + 1}); return false;">
+        <i class="fas fa-chevron-right"></i>
+      </a>
+    </li>
+  `;
+
+  paginationHtml += '</ul>';
+  controls.innerHTML = paginationHtml;
+}
+
+function changePage(page) {
+  const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
+  if (page < 1 || page > totalPages) return;
+  
+  currentPage = page;
+  renderPaginatedProducts();
+  
+  // Scroll al inicio de productos
+  document.getElementById('productos')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+async function loadCategoriesForFilter() {
+  try {
+    const res = await fetch('http://localhost:5000/categoria');
+    if (res.ok) {
+      const categories = await res.json();
+      const select = document.getElementById('categoryFilter');
+      if (select) {
+        select.innerHTML = '<option value="">Todas las categorías</option>' +
+          categories.map(cat => `<option value="${cat.nombre}">${cat.nombre}</option>`).join('');
+      }
+    }
+  } catch (error) {
+    console.error('Error cargando categorías:', error);
+  }
+}
+
+// Modificar la función renderCatalogo existente
+async function renderCatalogo() {
+  const container = document.getElementById('productos');
+  if (!container) return;
+
+  try {
+    const res = await fetch('http://localhost:5000/producto');
+    if (!res.ok) throw new Error('Error al cargar productos');
+    
+    allProducts = await res.json();
+    filteredProducts = [...allProducts];
+    
+    // Configurar filtros y paginación si no están configurados
+    if (!document.getElementById('searchInput')) {
+      setupFiltersAndPagination();
+      await loadCategoriesForFilter();
+    }
+    
+    renderPaginatedProducts();
+  } catch (error) {
+    console.error('Error:', error);
+    container.innerHTML = '<div class="alert alert-danger">Error al cargar productos. Intenta nuevamente.</div>';
+  }
+}
+
 window.ui = {
   mostrarToast,
   renderCatalogo,
   renderVistos,
   renderMasVendidos,
   initBuscador,
-  setYear
+  setYear,
+  applyFilters,
+  changePage
 };

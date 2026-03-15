@@ -25,12 +25,124 @@ async function cargarDepartamentosProducto() {
   const ciudadEl = document.getElementById('prodCiudadOrigen');
   if (!deptoEl || !ciudadEl) return;
 
-  try {
-    const res = await fetch('https://www.datos.gov.co/resource/xdk5-pm3f.json?$limit=1000');
-    const deptos = await safeJson(res);
-    if (!Array.isArray(deptos)) return;
+  // Datos locales de departamentos y ciudades de Colombia
+  const deptosColombia = [
+    { 
+      departamento: 'Antioquia', 
+      municipios: ['Medellín', 'Bello', 'Envigado', 'Itagüí', 'Sabaneta', 'Caldas', 'La Estrella', 'Copacabana', 'Rionegro', 'Apartadó'] 
+    },
+    { 
+      departamento: 'Valle del Cauca', 
+      municipios: ['Cali', 'Buenaventura', 'Palmira', 'Tuluá', 'Bugalagrande', 'Cartago', 'Roldanillo', 'La Unión'] 
+    },
+    { 
+      departamento: 'Cundinamarca', 
+      municipios: ['Bogotá', 'Soacha', 'Girardot', 'Facatativá', 'Chía', 'Cajicá', 'Zipaquirá', 'Mosquera'] 
+    },
+    { 
+      departamento: 'Atlántico', 
+      municipios: ['Barranquilla', 'Soledad', 'Malambo', 'Puerto Colombia', 'Sabanalarga', 'Baranoa'] 
+    },
+    { 
+      departamento: 'Santander', 
+      municipios: ['Bucaramanga', 'Floridablanca', 'Girón', 'Piedecuesta', 'Barrancabermeja', 'San Gil'] 
+    },
+    { 
+      departamento: 'Bolívar', 
+      municipios: ['Cartagena', 'Magangué', 'Turbaná', 'Arjona', 'Carmen de Bolívar', 'Mompós'] 
+    },
+    { 
+      departamento: 'Norte de Santander', 
+      municipios: ['Cúcuta', 'Los Patios', 'Villa del Rosario', 'Pamplona', 'Ocaña'] 
+    },
+    { 
+      departamento: 'Boyacá', 
+      municipios: ['Tunja', 'Duitama', 'Sogamoso', 'Chiquinquirá', 'Paipa', 'Tununguá'] 
+    },
+    { 
+      departamento: 'Risaralda', 
+      municipios: ['Pereira', 'Dosquebradas', 'Santa Rosa de Cabal', 'La Virginia', 'Apía'] 
+    },
+    { 
+      departamento: 'Quindío', 
+      municipios: ['Armenia', 'Calarcá', 'La Tebaida', 'Montenegro', 'Salento', 'Filandia'] 
+    },
+    { 
+      departamento: 'Meta', 
+      municipios: ['Villavicencio', 'Granada', 'Acacías', 'Villanueva', 'Puerto López'] 
+    },
+    { 
+      departamento: 'Tolima', 
+      municipios: ['Ibagué', 'Espinal', 'Girardot', 'Melgar', 'Ambalema', 'Honda'] 
+    },
+    { 
+      departamento: 'Córdoba', 
+      municipios: ['Montería', 'Lorica', 'Sahagún', 'Cereté', 'Montelíbano', 'Planeta Rica'] 
+    },
+    { 
+      departamento: 'Sucre', 
+      municipios: ['Sincelejo', 'Corozal', 'Morroa', 'Sampués', 'Chalán', 'Ovejas'] 
+    },
+    { 
+      departamento: 'Huila', 
+      municipios: ['Neiva', 'Garzón', 'Pitalito', 'La Plata', 'Rivera', 'Timaná'] 
+    },
+    { 
+      departamento: 'Caldas', 
+      municipios: ['Manizales', 'La Dorada', 'Chinchiná', 'Riosucio', 'Salamina', 'Anserma'] 
+    },
+    { 
+      departamento: 'Caquetá', 
+      municipios: ['Florencia', 'San Vicente del Caguán', 'Belén de los Andaquies', 'Morelia', 'Milán'] 
+    },
+    { 
+      departamento: 'Cesar', 
+      municipios: ['Valledupar', 'Aguachica', 'Becerril', 'Chiriguaná', 'Curumaní', 'Pailitas'] 
+    },
+    { 
+      departamento: 'Arauca', 
+      municipios: ['Arauca', 'Arauquita', 'Saravena', 'Tame', 'Fortul', 'Cravo Norte'] 
+    },
+    { 
+      departamento: 'Casanare', 
+      municipios: ['Yopal', 'Villanueva', 'Paz de Ariporo', 'Aguazul', 'Orocué', 'Maní'] 
+    },
+    { 
+      departamento: 'Guainía', 
+      municipios: ['Inírida', 'Cacahual', 'Mapiripana', 'San Felipe', 'Pana Pana', 'Morichal'] 
+    },
+    { 
+      departamento: 'Guaviare', 
+      municipios: ['San José del Guaviare', 'Calamar', 'El Retorno', 'Miraflores'] 
+    },
+    { 
+      departamento: 'Vaupés', 
+      municipios: ['Mitú', 'Carurú', 'Tarapacá', 'Pacoa', 'Papunaua', 'Yavaraté'] 
+    },
+    { 
+      departamento: 'Vichada', 
+      municipios: ['Puerto Carreño', 'Cumaribo', 'La Primavera', 'Santa Rosalía', 'Cruz Paredes'] 
+    },
+    { 
+      departamento: 'Chocó', 
+      municipios: ['Quibdó', 'Istmina', 'Condoto', 'Nóvita', 'Carmen del Atrato', 'Bagadó'] 
+    },
+    { 
+      departamento: 'Amazonas', 
+      municipios: ['Leticia', 'El Encanto', 'La Pedrera', 'Puerto Alegría', 'Puerto Arica', 'Tarapacá'] 
+    },
+    { 
+      departamento: 'Guajira', 
+      municipios: ['Riohacha', 'Maicao', 'Uribia', 'Manaure', 'Albania', 'Urumita'] 
+    },
+    { 
+      departamento: 'San Andrés y Providencia', 
+      municipios: ['San Andrés', 'Providencia', 'Santa Catalina'] 
+    }
+  ];
 
-    const deptosUnicos = [...new Set(deptos.map(d => d.departamento))];
+  try {
+    const deptosUnicos = deptosColombia.map(d => d.departamento);
     deptoEl.innerHTML = '<option value="">Seleccionar departamento</option>' +
       deptosUnicos.sort().map(d => `<option value="${d}">${d}</option>`).join('');
 
@@ -41,13 +153,11 @@ async function cargarDepartamentosProducto() {
         return;
       }
 
-      const ciudades = deptos
-        .filter(d => d.departamento === deptoSeleccionado)
-        .map(d => d.municipio);
-      const ciudadesUnicas = [...new Set(ciudades)];
+      const deptoData = deptosColombia.find(d => d.departamento === deptoSeleccionado);
+      const ciudades = deptoData ? deptoData.municipios : [];
       
       ciudadEl.innerHTML = '<option value="">Seleccionar municipio</option>' +
-        ciudadesUnicas.sort().map(c => `<option value="${c}">${c}</option>`).join('');
+        ciudades.sort().map(c => `<option value="${c}">${c}</option>`).join('');
     });
   } catch (error) {
     console.error('Error cargando departamentos:', error);

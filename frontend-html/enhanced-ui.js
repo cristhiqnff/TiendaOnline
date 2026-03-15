@@ -362,9 +362,6 @@ class EnhancedUI {
   setupProgressIndicators() {
     // Reading progress bar
     this.createReadingProgress();
-    
-    // Loading states
-    this.setupLoadingStates();
   }
 
   createReadingProgress() {
@@ -380,29 +377,6 @@ class EnhancedUI {
       
       progressBar.querySelector('.reading-progress-bar').style.width = scrolled + '%';
     });
-  }
-
-  setupLoadingStates() {
-    // Add loading states to buttons
-    document.querySelectorAll('.btn').forEach(button => {
-      button.addEventListener('click', () => {
-        if (button.dataset.loading !== 'false') {
-          this.setButtonLoading(button, true);
-        }
-      });
-    });
-  }
-
-  setButtonLoading(button, loading) {
-    if (loading) {
-      button.dataset.originalText = button.textContent;
-      button.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Cargando...';
-      button.disabled = true;
-    } else {
-      button.textContent = button.dataset.originalText;
-      button.disabled = false;
-      delete button.dataset.originalText;
-    }
   }
 
   // Utility Methods

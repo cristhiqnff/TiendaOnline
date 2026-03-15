@@ -33,133 +33,57 @@ async function cargarResenas(idProducto) {
     const resenas = await res.json();
 
     const roles = getRoles();
-    const puedeResenar = !!getToken() && roles.includes('CLIENTE');
+    const puedeResenar = roles.includes('cliente') || roles.includes('admin');
 
-    // Calcular promedio y distribución
-    const total = resenas.length;
-    const promedio = total ? (resenas.reduce((s, r) => s + Number(r.rating), 0) / total).toFixed(1) : '0.0';
-    const distrib = [5,4,3,2,1].map(stars => ({
-      stars,
-      count: resenas.filter(r => Number(r.rating) === stars).length,
-      percent: total ? (resenas.filter(r => Number(r.rating) === stars).length / total * 100) : 0
-    }));
-
-    let html = '';
-    if (puedeResenar) {
-      html += `
-        <button class="btn btn-primary mb-3" type="button" data-bs-toggle="collapse" data-bs-target="#formResenaCollapse">
-          Escribir una reseña
-        </button>
-        <div class="collapse mb-4" id="formResenaCollapse">
-          <form id="formResena">
-            <div class="mb-2">
-              <label class="form-label">Puntuación</label>
-              <select class="form-select" id="resenaRating" required>
-                <option value="">--</option>
-                <option value="5">5 estrellas</option>
-                <option value="4">4 estrellas</option>
-                <option value="3">3 estrellas</option>
-                <option value="2">2 estrellas</option>
-                <option value="1">1 estrella</option>
-              </select>
-            </div>
-            <div class="mb-2">
-              <label class="form-label">Comentario</label>
-              <textarea class="form-control" id="resenaComentario" rows="3" required></textarea>
-            </div>
-            <button type="submit" class="btn btn-primary">Publicar reseña</button>
-            <div id="resenaMsg" class="mt-2"></div>
-          </form>
-        </div>
-      `;
-    } else if (!getToken()) {
-      html += '<div class="alert alert-light border">Inicia sesión como <b>CLIENTE</b> para dejar una reseña. <a href="login.html?redirect=detalle-producto.html?id=' + encodeURIComponent(idProducto) + '">Ir a login</a></div>';
-    } else {
-      html += '<div class="alert alert-light border">Solo los usuarios con rol <b>CLIENTE</b> pueden dejar reseñas.</div>';
-    }
-
-    // Resumen estadístico
-    html += `
-      <div class="row mb-4">
-        <div class="col-md-4">
-          <div class="fw-bold fs-3">${promedio} <small class="text-muted fw-normal">/5</small></div>
-          <div class="text-muted">${total} reseña${total !== 1 ? 's' : ''}</div>
-        </div>
-        <div class="col-md-8">
-          ${distrib.map(d => `
-            <div class="d-flex align-items-center gap-2 mb-1">
-              <span class="small">${d.stars} ⭐</span>
-              <div class="progress flex-grow-1" style="height:8px;">
-                <div class="progress-bar bg-warning" style="width:${d.percent}%"></div>
-              </div>
-              <span class="small text-muted" style="min-width:28px;">${d.count}</span>
-            </div>
-          `).join('')}
-        </div>
-      </div>
-    `;
-
-    // Ordenamiento
-    html += `
-      <div class="d-flex align-items-center gap-2 mb-3">
-        <span class="small fw-semibold">Ordenar por:</span>
-        <select class="form-select form-select-sm" id="sortResenas" style="width:auto;">
-          <option value="reciente">Más reciente</option>
-          <option value="mayor">Mayor puntuación</option>
-          <option value="menor">Menor puntuación</option>
-        </select>
-      </div>
-    `;
-
-    if (!total) {
-      html += '<div class="text-muted">Aún no hay reseñas. Sé el primero en comentar.</div>';
-      contResenas.innerHTML = html;
+    if (!Array.isArray(resenas) || resenas.length === 0) {
+      contResenas.innerHTML = '<div class="text-muted">No hay reseñas aún.</div>';
       return;
     }
 
-    const renderResenas = (orden) => {
-      let sorted = [...resenas];
-      if (orden === 'mayor') sorted.sort((a,b) => Number(b.rating) - Number(a.rating));
-      else if (orden === 'menor') sorted.sort((a,b) => Number(a.rating) - Number(b.rating));
-      else sorted.sort((a,b) => new Date(b.fecha) - new Date(a.fecha));
+    contResenas.innerHTML = resenas.map(r => `
+      <div class="border-bottom pb-3 mb-3">
+        <div class="d-flex justify-content-between">
+          <strong>${r.usuario_nombre || 'Anónimo'}</strong>
+          <small class="text-muted">${new Date(r.fecha).toLocaleDateString()}</small>
+        </div>
+        <div class="text-warning mb-1">${'★'.repeat(r.calificacion || 0)}${'☆'.repeat(5 - (r.calificacion || 0))}</div>
+        <p class="mb-0">${r.comentario || ''}</p>
+      </div>
+    `).join('');
 
-      const itemsHtml = sorted
-        .map(r => {
-          const fecha = r.fecha ? new Date(r.fecha).toLocaleString() : '';
-          return `
-            <div class="card shadow-sm mb-2">
-              <div class="card-body">
-                <div class="d-flex justify-content-between align-items-start gap-2">
-                  <div>
-                    <div class="fw-semibold">${escapeHtml(r.usuario || 'Usuario')}</div>
-                    <div class="text-muted small">${fecha}</div>
-                  </div>
-                  <div class="badge bg-success">${r.rating}/5</div>
-                </div>
-                <div class="mt-2">${escapeHtml((r.comentario || '').toString())}</div>
-              </div>
-            </div>
-          `;
-        })
-        .join('');
-      contResenas.innerHTML = html + itemsHtml;
-    };
+    if (puedeResenar) {
+      const formResena = document.createElement('div');
+      formResena.className = 'mt-4 p-3 border rounded';
+      formResena.innerHTML = `
+        <h5>Escribe tu reseña</h5>
+        <div class="mb-2">
+          <label>Calificación:</label>
+          <select id="calificacion" class="form-select">
+            <option value="5">5 estrellas</option>
+            <option value="4">4 estrellas</option>
+            <option value="3">3 estrellas</option>
+            <option value="2">2 estrellas</option>
+            <option value="1">1 estrella</option>
+          </select>
+        </div>
+        <div class="mb-2">
+          <label>Comentario:</label>
+          <textarea id="comentario" class="form-control" rows="3" placeholder="Tu opinión sobre este producto..."></textarea>
+        </div>
+        <button class="btn btn-primary" id="btnEnviarResena">Enviar reseña</button>
+        <div id="resenaMsg"></div>
+      `;
+      contResenas.appendChild(formResena);
 
-    renderResenas('reciente');
-
-    const sortSelect = document.getElementById('sortResenas');
-    if (sortSelect) {
-      sortSelect.onchange = () => renderResenas(sortSelect.value);
-    }
-
-    const form = document.getElementById('formResena');
-    if (form) {
-      form.onsubmit = async (e) => {
-        e.preventDefault();
+      document.getElementById('btnEnviarResena').onclick = async () => {
+        const calificacion = document.getElementById('calificacion').value;
+        const comentario = document.getElementById('comentario').value;
         const msg = document.getElementById('resenaMsg');
-        msg.textContent = '';
-        const rating = document.getElementById('resenaRating').value;
-        const comentario = document.getElementById('resenaComentario').value;
+
+        if (!calificacion || !comentario.trim()) {
+          msg.innerHTML = '<div class="alert alert-warning">Completa todos los campos.</div>';
+          return;
+        }
 
         try {
           const token = getToken();
@@ -167,11 +91,11 @@ async function cargarResenas(idProducto) {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              'Authorization': 'Bearer ' + token
+              'Authorization': `Bearer ${token}`
             },
-            body: JSON.stringify({ rating, comentario })
+            body: JSON.stringify({ calificacion, comentario })
           });
-          const body = await resp.json();
+
           if (resp.ok) {
             msg.innerHTML = '<div class="alert alert-success">Reseña publicada.</div>';
             await cargarResenas(idProducto);
@@ -188,17 +112,18 @@ async function cargarResenas(idProducto) {
   }
 }
 
-function pushVisto(producto) {
+function marcarComoVisto(prod) {
   try {
-    const vistos = JSON.parse(localStorage.getItem('vistos') || '[]');
-    const pid = producto.id_producto || producto.id;
+    const pid = prod.id_producto || prod.id;
+    if (!pid) return;
+    let vistos = JSON.parse(localStorage.getItem('vistos') || '[]');
     const limpio = {
       id: pid,
-      nombre: producto.nombre,
-      precio: Number(producto.precio) || 0,
-      id_categoria: producto.id_categoria,
-      imagen: producto.imagen || null,
-      ts: Date.now()
+      nombre: prod.nombre,
+      imagen: prod.imagen,
+      precio: prod.precio,
+      categoria: prod.categoria,
+      fecha: new Date().toISOString()
     };
     const sinDup = vistos.filter(v => String(v.id) !== String(pid));
     sinDup.unshift(limpio);
@@ -209,232 +134,176 @@ function pushVisto(producto) {
 }
 
 async function cargarSimilares(prod) {
+  const contSimilares = document.getElementById('similaresContainer');
   if (!contSimilares) return;
   try {
     const res = await fetch('http://localhost:5000/producto');
     const productos = await res.json();
     const similares = (productos || [])
       .filter(p => String(p.id_producto) !== String(prod.id_producto))
-      .filter(p => String(p.id_categoria) === String(prod.id_categoria))
-      .slice(0, 6);
+      .filter(p => p.categoria === prod.categoria)
+      .slice(0, 4);
 
-    if (!similares.length) {
-      contSimilares.innerHTML = '<div class="text-muted">No hay productos similares para mostrar.</div>';
+    if (similares.length === 0) {
+      contSimilares.innerHTML = '<div class="text-muted">No hay productos similares.</div>';
       return;
     }
 
-    contSimilares.innerHTML = '';
-    similares.forEach(p => {
-      const item = document.createElement('div');
-      item.className = 'ml-hitem';
-      item.innerHTML = `
-        <a href="detalle-producto.html?id=${p.id_producto}" class="text-decoration-none text-dark">
-          <div class="card h-100 shadow-sm">
-            <img src="${p.imagen || 'https://via.placeholder.com/300x200'}" class="card-img-top" alt="${p.nombre}">
-            <div class="card-body">
-              <div class="small text-muted">Nuevo</div>
-              <div class="fw-semibold">${p.nombre}</div>
-              <div class="text-muted">$${p.precio}</div>
-            </div>
+    const html = similares.map(p => `
+      <div class="col-md-3 mb-3">
+        <div class="card h-100">
+          <img src="${p.imagen || 'https://via.placeholder.com/200x150?text=Sin+Imagen'}" class="card-img-top" alt="${p.nombre}">
+          <div class="card-body">
+            <h6 class="card-title">${p.nombre}</h6>
+            <p class="card-text text-primary fw-bold">$${Number(p.precio || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}</p>
+            <a href="detalle-producto.html?id=${p.id_producto}" class="btn btn-outline-primary btn-sm">Ver detalles</a>
           </div>
-        </a>
-      `;
-      contSimilares.appendChild(item);
-    });
+        </div>
+      </div>
+    `).join('');
 
-    const scrollByCards = (dir) => {
-      const first = contSimilares.querySelector('.ml-hitem');
-      const amount = first ? first.getBoundingClientRect().width + 12 : 240;
-      contSimilares.scrollBy({ left: dir * amount * 2, behavior: 'smooth' });
-    };
-
-    if (btnSimPrev) btnSimPrev.onclick = () => scrollByCards(-1);
-    if (btnSimNext) btnSimNext.onclick = () => scrollByCards(1);
+    contSimilares.innerHTML = html;
   } catch {
     contSimilares.innerHTML = '<div class="text-muted">No se pudieron cargar los similares.</div>';
   }
 }
+
+async function cargarAtributos(prod) {
+  const secAtr = document.getElementById('productoAtributos');
+  if (!secAtr) return;
+  
+  try {
+    const res = await fetch(`http://localhost:5000/producto/${prod.id_producto || prod.id}/atributos`);
+    const atributos = await res.json();
+    
+    if (!Array.isArray(atributos) || !atributos.length) {
+      secAtr.style.display = 'none';
+      return;
+    }
+
+    const html = atributos.map(atr => `
+      <div class="row mb-2">
+        <div class="col-sm-4 fw-bold">${atr.seccion || ''}:</div>
+        <div class="col-sm-8">${atr.valor || ''}</div>
+      </div>
+    `).join('');
+
+    secAtr.innerHTML = `
+      <h5 class="mt-4">Características</h5>
+      <div class="border p-3 rounded">
+        ${html}
+      </div>
+    `;
+    secAtr.style.display = 'block';
+  } catch {
+    secAtr.style.display = 'none';
+  }
+}
+
 if (!id) {
-  cont.innerHTML = '<div class="alert alert-danger">ID de producto no especificado.</div>';
+  cont.innerHTML = `
+    <div class="alert alert-danger">
+      <h4 class="alert-heading">Producto No Encontrado</h4>
+      <p>No se especificó un ID de producto válido.</p>
+      <hr>
+      <a href="index.html" class="btn btn-primary">Volver al Catálogo</a>
+    </div>
+  `;
 } else {
   fetch(`http://localhost:5000/producto/${id}`)
-    .then(res => res.json())
-    .then(prod => {
-      if (!prod) {
-        cont.innerHTML = '<div class="alert alert-info">Producto no encontrado.</div>';
-        return;
+    .then(res => {
+      if (!res.ok) {
+        if (res.status === 404) {
+          throw new Error('Producto no encontrado');
+        } else {
+          throw new Error('Error al cargar el producto');
+        }
       }
-
-      const bc = document.getElementById('breadcrumbProducto');
-      if (bc) bc.textContent = prod.nombre || 'Producto';
-
-      const img = prod.imagen || 'https://via.placeholder.com/800x600';
-      const thumbs = [img, img, img];
-
-      let html = `
-        <div class="pdp-grid">
-          <div class="pdp-card p-3 p-md-4">
-            <div class="pdp-gallery">
-              <div class="pdp-thumbs" id="thumbs"></div>
-              <div>
-                <img id="mainImg" src="${img}" class="pdp-main-img" alt="${prod.nombre}">
-              </div>
-            </div>
-
-            <div class="mt-4">
-              <h2 class="h4 fw-bold">${prod.nombre}</h2>
-              <div class="text-muted">Stock disponible: <b>${prod.stock ?? ''}</b></div>
-              <div class="fw-bold fs-3 mt-2">$${prod.precio}</div>
-              <div class="mt-3">
-                <button class="btn btn-primary" type="button" onclick="agregarAlCarrito(${prod.id_producto || prod.id}, \"${prod.nombre}\", ${prod.precio}, \"${prod.imagen || ''}\", \"${prod.ciudad_origen || ''}\")">Agregar al carrito</button>
-                <a class="btn btn-outline-dark ms-2" href="carrito.html">Ver carrito</a>
-              </div>
-            </div>
-
-            <div id="seccionDescripcion" class="mt-4" style="display:none;">
-              <h3 class="h6 fw-bold">Descripción</h3>
-              <p id="textoDescripcion" class="small"></p>
-            </div>
-
-            <div id="seccionAtributos" class="mt-4" style="display:none;">
-              <h3 class="h6 fw-bold">Características del producto</h3>
-              <div id="atributosList"></div>
-            </div>
+      return res.json();
+    })
+    .then(prod => {
+      if (!prod || Object.keys(prod).length === 0) {
+        throw new Error('Producto no encontrado');
+      }
+      
+      // Renderizar producto
+      const idProd = prod.id_producto || prod.id;
+      const imgUrl = prod.imagen || 'https://via.placeholder.com/400x300?text=Sin+Imagen';
+      const nombre = prod.nombre || 'Producto sin nombre';
+      const precio = Number(prod.precio || 0).toLocaleString('en-US', { minimumFractionDigits: 2 });
+      const descripcion = prod.descripcion || 'Sin descripción disponible';
+      
+      cont.innerHTML = `
+        <div class="row">
+          <div class="col-md-6">
+            <img src="${imgUrl}" class="img-fluid rounded" alt="${nombre}" 
+                 onerror="this.src='https://via.placeholder.com/400x300?text=Error+Carga+Imagen'">
           </div>
-
-          <div class="pdp-card p-3 p-md-4">
-            <div class="fw-semibold mb-2">Opciones de compra</div>
-            <div class="text-muted mb-3">Envío y pagos (demo)</div>
-            <div class="d-grid gap-2">
-              <a class="btn btn-dark" href="checkout.html">Comprar ahora</a>
-              <button class="btn btn-outline-dark" type="button" onclick="agregarAlCarrito(${prod.id_producto || prod.id}, \"${prod.nombre}\", ${prod.precio}, \"${prod.imagen || ''}\", \"${prod.ciudad_origen || ''}\")">Agregar al carrito</button>
+          <div class="col-md-6">
+            <h2>${nombre}</h2>
+            <p class="text-muted">${prod.categoria || 'Sin categoría'}</p>
+            <h3 class="text-primary">$${precio}</h3>
+            <p>${descripcion}</p>
+            
+            <div class="d-flex gap-2 mb-3">
+              <button class="btn btn-primary" onclick="window.cart.agregarAlCarrito(${JSON.stringify(prod).replace(/"/g, '&quot;')})">
+                <i class="fas fa-cart-plus"></i> Agregar al Carrito
+              </button>
+              <button class="btn btn-outline-secondary" onclick="window.history.back()">
+                <i class="fas fa-arrow-left"></i> Volver
+              </button>
             </div>
-
-            <hr>
-            <div class="small text-muted">Lo que tienes que saber de este producto (próximo paso: descripción + características desde BD).</div>
+            
+            <div id="productoAtributos"></div>
+          </div>
+        </div>
+        
+        <div class="mt-5">
+          <h4>Productos Similares</h4>
+          <div id="similaresContainer" class="row"></div>
+        </div>
+        
+        <div class="mt-5">
+          <h4>Reseñas</h4>
+          <div id="resenasContainer"></div>
+        </div>
+      `;
+      
+      // Cargar datos adicionales
+      cargarAtributos(prod);
+      cargarSimilares(prod);
+      cargarResenas(idProd);
+      
+      // Marcar como visto
+      marcarComoVisto(prod);
+      
+    })
+    .catch(error => {
+      console.error('Error cargando producto:', error);
+      cont.innerHTML = `
+        <div class="alert alert-danger">
+          <h4 class="alert-heading">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            ${error.message === 'Producto no encontrado' ? 'Producto No Encontrado' : 'Error al Cargar Producto'}
+          </h4>
+          <p class="mb-3">
+            ${error.message === 'Producto no encontrado' 
+              ? 'El producto que buscas no existe o ha sido eliminado.' 
+              : 'No pudimos cargar la información del producto en este momento. Por favor, intenta nuevamente más tarde.'}
+          </p>
+          <hr>
+          <div class="d-flex gap-2">
+            <a href="index.html" class="btn btn-primary">
+              <i class="fas fa-home me-2"></i>Ir al Catálogo
+            </a>
+            <a href="categorias.html" class="btn btn-outline-secondary">
+              <i class="fas fa-th-large me-2"></i>Ver Categorías
+            </a>
+            <button onclick="window.history.back()" class="btn btn-outline-primary">
+              <i class="fas fa-arrow-left me-2"></i>Volver Atrás
+            </button>
           </div>
         </div>
       `;
-
-      cont.innerHTML = html;
-
-      const thumbsCont = document.getElementById('thumbs');
-      const mainImg = document.getElementById('mainImg');
-      if (thumbsCont && mainImg) {
-        thumbsCont.innerHTML = '';
-        thumbs.forEach((t) => {
-          const el = document.createElement('div');
-          el.className = 'pdp-thumb';
-          el.innerHTML = `<img src="${t}" alt="thumb">`;
-          el.addEventListener('click', () => {
-            mainImg.src = t;
-          });
-          thumbsCont.appendChild(el);
-        });
-      }
-
-      // Mostrar descripción si existe
-      const secDesc = document.getElementById('seccionDescripcion');
-      const txtDesc = document.getElementById('textoDescripcion');
-      if (secDesc && txtDesc) {
-        if (prod.descripcion && prod.descripcion.trim()) {
-          txtDesc.textContent = prod.descripcion;
-          secDesc.style.display = 'block';
-        } else {
-          secDesc.style.display = 'none';
-        }
-      }
-
-      // Cargar y mostrar atributos por secciones
-      const secAtr = document.getElementById('seccionAtributos');
-      const listAtr = document.getElementById('atributosList');
-      if (secAtr && listAtr) {
-        fetch(`http://localhost:5000/producto/${prod.id_producto || prod.id}/atributos`)
-          .then(r => r.json())
-          .then(atributos => {
-            if (!Array.isArray(atributos) || !atributos.length) {
-              secAtr.style.display = 'none';
-              return;
-            }
-            const porSeccion = {};
-            atributos.forEach(a => {
-              if (!porSeccion[a.seccion]) porSeccion[a.seccion] = [];
-              porSeccion[a.seccion].push(a);
-            });
-            listAtr.innerHTML = '';
-            Object.entries(porSeccion).forEach(([seccion, items]) => {
-              const divSeccion = document.createElement('div');
-              divSeccion.className = 'mb-3';
-              divSeccion.innerHTML = `<h4 class="h6 fw-bold mb-2">${seccion}</h4>`;
-              const table = document.createElement('table');
-              table.className = 'table table-sm table-borderless';
-              items.forEach(i => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `<td class="fw-semibold">${i.atributo}</td><td>${i.valor}</td>`;
-                table.appendChild(tr);
-              });
-              divSeccion.appendChild(table);
-              listAtr.appendChild(divSeccion);
-            });
-            secAtr.style.display = 'block';
-          })
-          .catch(() => {
-            secAtr.style.display = 'none';
-          });
-      }
-
-      pushVisto(prod);
-      cargarSimilares(prod);
-      cargarResenas(prod.id_producto || prod.id);
-    })
-    .catch(() => {
-      cont.innerHTML = '<div class="alert alert-danger">Error al cargar el producto.</div>';
     });
 }
-
-function agregarAlCarrito(id, nombre, precio, imagen, ciudad_origen) {
-  let carrito = JSON.parse(localStorage.getItem('carrito') || '[]');
-  const idx = carrito.findIndex(i => i.id === id);
-  if (idx >= 0) {
-    carrito[idx].cantidad++;
-  } else {
-    carrito.push({ id, nombre, precio, cantidad: 1, imagen: imagen || null, ciudad_origen: ciudad_origen || null });
-  }
-  localStorage.setItem('carrito', JSON.stringify(carrito));
-
-  // Update badge
-  const badge = document.getElementById('cartCount');
-  if (badge) {
-    const total = carrito.reduce((a, i) => a + (Number(i.cantidad) || 0), 0);
-    badge.textContent = String(total);
-    badge.style.display = total > 0 ? 'inline-block' : 'none';
-  }
-
-  // Toast notification instead of alert
-  mostrarToast('Producto agregado al carrito');
-}
-
-function mostrarToast(msg) {
-  let toast = document.getElementById('toastCarrito');
-  if (!toast) {
-    toast = document.createElement('div');
-    toast.id = 'toastCarrito';
-    toast.style.cssText = 'position:fixed;bottom:24px;right:24px;background:#333;color:#fff;padding:12px 24px;border-radius:10px;font-size:14px;z-index:9999;opacity:0;transition:opacity 0.3s;box-shadow:0 4px 16px rgba(0,0,0,0.2);';
-    document.body.appendChild(toast);
-  }
-  toast.textContent = msg;
-  toast.style.opacity = '1';
-  clearTimeout(toast._timer);
-  toast._timer = setTimeout(() => { toast.style.opacity = '0'; }, 2500);
-}
-
-function escapeHtml(str) {
-  return String(str ?? '')
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;');
-}
-
-window.agregarAlCarrito = agregarAlCarrito;

@@ -98,10 +98,3 @@ window.session = {
     this.updateNavbar();
   }
 };
-
-// Inicializar la navegación cuando el DOM esté listo
-document.addEventListener("DOMContentLoaded", () => {
-  if (window.session) {
-    window.session.updateNavbar();
-  }
-});
