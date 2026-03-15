@@ -50,7 +50,7 @@ class GestionPedidos {
 
   async cargarPedidos() {
     try {
-      const token = localStorage.getItem('token');
+      const token = window.session.getToken();
       if (!token) {
         this.showError('No autorizado');
         return;
@@ -76,7 +76,7 @@ class GestionPedidos {
 
   async cargarEstadisticas() {
     try {
-      const token = localStorage.getItem('token');
+      const token = window.session.getToken();
       const response = await fetch('http://localhost:5000/pedido/reportes/resumen', {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -232,7 +232,7 @@ class GestionPedidos {
 
   async verDetalle(idPedido) {
     try {
-      const token = localStorage.getItem('token');
+      const token = window.session.getToken();
       const response = await fetch(`http://localhost:5000/pedido/${idPedido}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -343,7 +343,7 @@ class GestionPedidos {
       const nuevoEstado = document.getElementById('nuevoEstado').value;
       const notas = document.getElementById('notasEstado').value;
       
-      const token = localStorage.getItem('token');
+      const token = window.session.getToken();
       const response = await fetch(`http://localhost:5000/pedido/${idPedido}`, {
         method: 'PUT',
         headers: {
@@ -376,7 +376,7 @@ class GestionPedidos {
     }
 
     try {
-      const token = localStorage.getItem('token');
+      const token = window.session.getToken();
       const response = await fetch(`http://localhost:5000/pedido/${idPedido}`, {
         method: 'PUT',
         headers: {
@@ -402,7 +402,7 @@ class GestionPedidos {
 
   async exportarPedidos() {
     try {
-      const token = localStorage.getItem('token');
+      const token = window.session.getToken();
       const response = await fetch('http://localhost:5000/pedido/reportes/resumen/csv', {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -487,23 +487,22 @@ window.imprimirPedido = () => gestionPedidos.imprimirPedido();
 
 // Inicialización cuando el DOM esté listo
 document.addEventListener('DOMContentLoaded', () => {
-  // Verificar autenticación y rol
-  const token = localStorage.getItem('token');
-  const user = JSON.parse(localStorage.getItem('user') || '{}');
-  const roles = Array.isArray(user.roles) ? user.roles : (user.rol ? [user.rol] : []);
+  // Verificar autenticación y rol usando el sistema UNIFICADO
+  const token = window.session.getToken();
+  const user = window.session.getUser();
+  const rol = user ? user.rol : null;
   
   if (!token) {
     window.location.href = 'login.html';
     return;
   }
-
-  const esAdmin = roles.includes('ADMIN') || roles.includes('SUPER_ADMIN');
-  if (!esAdmin) {
-    alert('No tienes permisos para acceder a esta página');
+  
+  if (rol !== 'admin' && rol !== 'vendedor') {
     window.location.href = 'index.html';
     return;
   }
-
-  // Inicializar el sistema
-  gestionPedidos = new GestionPedidos();
+  
+  // Inicializar el gestor de pedidos
+  window.gestionPedidos = new GestionPedidos();
+  window.gestionPedidos.init();
 });

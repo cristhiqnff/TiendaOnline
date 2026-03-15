@@ -1,13 +1,12 @@
+// Sistema de perfil - Tienda Online
+// Uso exclusivo del sistema session.js
+
 function getUser() {
-  try {
-    return JSON.parse(localStorage.getItem('user') || '{}');
-  } catch {
-    return {};
-  }
+  return window.session.getUser();
 }
 
 function getToken() {
-  return localStorage.getItem('token') || '';
+  return window.session.getToken();
 }
 
 async function cargarCategorias() {

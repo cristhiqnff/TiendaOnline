@@ -1,11 +1,11 @@
 // 📦 KARDEX JAVASCRIPT - Sistema de Gestión de Inventario
 // Frontend: Vanilla JavaScript + Bootstrap 5 + Chart.js
 
-class KardexSystem {
+class KardexManager {
     constructor() {
         this.apiBase = 'http://localhost:5000/kardex';
         this.productosBase = 'http://localhost:5000/producto';
-        this.token = localStorage.getItem('token');
+        this.token = window.session.getToken();
         this.movimientos = [];
         this.productos = [];
         this.tiposMovimiento = [];

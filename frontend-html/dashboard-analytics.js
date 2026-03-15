@@ -8,8 +8,8 @@ class DashboardAnalytics {
   }
 
   async init() {
-    // Verificar autenticación
-    const token = localStorage.getItem('token');
+    // Verificar autenticación usando el sistema UNIFICADO
+    const token = window.session.getToken();
     if (!token) {
       window.location.href = 'login.html';
       return;
@@ -70,7 +70,7 @@ class DashboardAnalytics {
   async fetchData(endpoint) {
     const response = await fetch(`http://localhost:5000${endpoint}`, {
       headers: {
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
+        'Authorization': `Bearer ${window.session.getToken()}`
       }
     });
 

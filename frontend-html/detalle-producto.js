@@ -1,17 +1,12 @@
 const params = new URLSearchParams(window.location.search);
 const id = params.get('id');
 const cont = document.getElementById('detalleProducto');
-const contSimilares = document.getElementById('similares');
-const contResenas = document.getElementById('resenas');
-const btnSimPrev = document.getElementById('btnSimPrev');
-const btnSimNext = document.getElementById('btnSimNext');
+
+// Sistema de detalle de producto - Tienda Online
+// Uso exclusivo del sistema session.js
 
 function getUser() {
-  try {
-    return JSON.parse(localStorage.getItem('user') || '{}');
-  } catch {
-    return {};
-  }
+  return window.session.getUser();
 }
 
 function getRoles() {
@@ -25,7 +20,7 @@ function getRoles() {
 }
 
 function getToken() {
-  return localStorage.getItem('token');
+  return window.session.getToken();
 }
 
 async function cargarResenas(idProducto) {
