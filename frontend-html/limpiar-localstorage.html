@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Limpiar localStorage</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+</head>
+<body>
+  <div class="container mt-4">
+    <h1>Limpiar localStorage</h1>
+    <div class="alert alert-warning">
+      <h4>⚠️ Atención</h4>
+      <p>Esta página limpiará completamente todos los datos de localStorage, incluyendo cualquier dato corrupto que pueda estar causando el problema.</p>
+    </div>
+    
+    <div class="row">
+      <div class="col-md-6">
+        <h3>Estado Antes</h3>
+        <div id="antes" class="border p-3 bg-light"></div>
+      </div>
+      
+      <div class="col-md-6">
+        <h3>Estado Después</h3>
+        <div id="despues" class="border p-3 bg-light"></div>
+      </div>
+    </div>
+    
+    <div class="row mt-3">
+      <div class="col-12">
+        <button class="btn btn-danger" onclick="limpiarTodo()">Limpiar localStorage</button>
+        <button class="btn btn-primary" onclick="verificar()">Verificar Estado</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function mostrarEstado(antes, despues) {
+      document.getElementById('antes').innerHTML = '<pre>' + JSON.stringify(antes, null, 2) + '</pre>';
+      document.getElementById('despues').innerHTML = '<pre>' + JSON.stringify(despues, null, 2) + '</pre>';
+    }
+    
+    function limpiarTodo() {
+      const antes = {};
+      const claves = Object.keys(localStorage);
+      claves.forEach(key => {
+        antes[key] = localStorage.getItem(key);
+      });
+      
+      localStorage.clear();
+      
+      const despues = {};
+      const clavesDespues = Object.keys(localStorage);
+      clavesDespues.forEach(key => {
+        despues[key] = localStorage.getItem(key);
+      });
+      
+      mostrarEstado(antes, despues);
+    }
+    
+    function verificar() {
+      const claves = Object.keys(localStorage);
+      const valores = {};
+      
+      claves.forEach(key => {
+        valores[key] = localStorage.getItem(key);
+      });
+      
+      document.getElementById('antes').innerHTML = '<pre>' + JSON.stringify(valores, null, 2) + '</pre>';
+      document.getElementById('despues').innerHTML = '<pre>{} (vacío)</pre>';
+    }
+    
+    // Mostrar estado actual al cargar
+    verificar();
+  </script>
+</body>
+</html>

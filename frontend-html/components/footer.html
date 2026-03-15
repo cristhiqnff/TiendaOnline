@@ -1,0 +1,65 @@
+<!-- Footer Principal - Componente Reutilizable -->
+<footer class="bg-dark text-white pt-5 pb-3 mt-5">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-4 mb-4">
+        <h5 class="mb-3">Tienda Online</h5>
+        <p class="text-muted">Tu marketplace de confianza para comprar y vender productos de calidad.</p>
+        <div class="d-flex gap-3">
+          <a href="#" class="text-white text-decoration-none"><i class="fab fa-facebook-f"></i></a>
+          <a href="#" class="text-white text-decoration-none"><i class="fab fa-twitter"></i></a>
+          <a href="#" class="text-white text-decoration-none"><i class="fab fa-instagram"></i></a>
+          <a href="#" class="text-white text-decoration-none"><i class="fab fa-linkedin-in"></i></a>
+        </div>
+      </div>
+      <div class="col-lg-2 mb-4">
+        <h6 class="mb-3">Enlaces Rápidos</h6>
+        <ul class="list-unstyled">
+          <li class="mb-2"><a href="index.html" class="text-muted text-decoration-none">Inicio</a></li>
+          <li class="mb-2"><a href="categorias.html" class="text-muted text-decoration-none">Categorías</a></li>
+          <li class="mb-2"><a href="mis-pedidos.html" class="text-muted text-decoration-none">Mis Pedidos</a></li>
+          <li class="mb-2"><a href="carrito.html" class="text-muted text-decoration-none">Carrito</a></li>
+        </ul>
+      </div>
+      <div class="col-lg-2 mb-4">
+        <h6 class="mb-3">Ayuda</h6>
+        <ul class="list-unstyled">
+          <li class="mb-2"><a href="#" class="text-muted text-decoration-none">Centro de Ayuda</a></li>
+          <li class="mb-2"><a href="#" class="text-muted text-decoration-none">Política de Devolución</a></li>
+          <li class="mb-2"><a href="#" class="text-muted text-decoration-none">Términos y Condiciones</a></li>
+          <li class="mb-2"><a href="#" class="text-muted text-decoration-none">Privacidad</a></li>
+        </ul>
+      </div>
+      <div class="col-lg-4 mb-4">
+        <h6 class="mb-3">Newsletter</h6>
+        <p class="text-muted small">Suscríbete para recibir ofertas exclusivas y novedades.</p>
+        <form class="d-flex gap-2">
+          <input type="email" class="form-control" placeholder="Tu email">
+          <button type="submit" class="btn btn-primary">Suscribir</button>
+        </form>
+      </div>
+    </div>
+    <hr class="border-secondary my-4">
+    <div class="row align-items-center">
+      <div class="col-md-6">
+        <div class="small text-muted">
+          © <span id="currentYear"></span> Tienda Online — Todos los derechos reservados.
+        </div>
+      </div>
+      <div class="col-md-6 text-md-end">
+        <div class="small">
+          <a href="#" class="text-muted text-decoration-none me-3">Política de Privacidad</a>
+          <a href="#" class="text-muted text-decoration-none me-3">Términos de Servicio</a>
+          <a href="#" class="text-muted text-decoration-none">Contacto</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Inicialización del footer (se ejecuta cuando el componente se carga)
+  if (typeof window.initFooter === 'function') {
+    window.initFooter();
+  }
+</script>

@@ -1,0 +1,39 @@
+<!-- Header Principal - Componente Reutilizable -->
+<header class="ml-header {{HEADER_CLASS}} sticky-top shadow-sm">
+  <div class="container py-2">
+    <div class="d-flex gap-3 align-items-center">
+      <a class="ml-brand" href="index.html" aria-label="Ir al Inicio de Tienda Online">Tienda Online</a>
+      <form class="flex-grow-1 position-relative" role="search" id="formBuscador">
+        <div class="input-group">
+          <span class="input-group-text bg-white bg-opacity-10 border-0 text-white" id="search-addon" aria-hidden="true">🔍</span>
+          <input class="form-control" id="busqueda" type="search" placeholder="Buscar productos, categoría o marca..." aria-label="Buscar" aria-describedby="search-addon" autocomplete="off">
+        </div>
+      </form>
+      <a class="btn btn-outline-light position-relative" href="carrito.html" aria-label="Carrito">
+        Carrito
+        <span id="cartCount" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="display:none;">0</span>
+      </a>
+    </div>
+    <div class="d-flex gap-3 mt-2 small align-items-center flex-wrap">
+      <a class="text-dark text-decoration-none" href="categorias.html">Categorías</a>
+      <a class="text-dark text-decoration-none" href="mis-pedidos.html">Mis pedidos</a>
+      <span id="navVendedor" style="display:none;"><a class="text-dark text-decoration-none" href="panel-vendedor.html">Panel de vendedor</a></span>
+      <span id="navAdmin" style="display:none;"><a class="text-dark text-decoration-none" href="admin.html">Administración</a></span>
+      <span id="navGuest"><a class="text-dark text-decoration-none" href="login.html">Iniciar sesión</a> <a class="text-dark text-decoration-none" href="registro.html">Registrarse</a></span>
+      <span id="navUser" style="display:none;" class="ms-auto d-flex gap-3 align-items-center">
+        <a class="text-dark text-decoration-none" href="perfil.html"><span id="navUserName">Mi cuenta</span></a>
+        <button class="btn btn-sm btn-outline-dark" type="button" id="btnLogout">Cerrar sesión</button>
+      </span>
+    </div>
+  </div>
+</header>
+
+<script>
+  // Inicialización del header (se ejecuta cuando el componente se carga)
+  document.addEventListener('DOMContentLoaded', () => {
+    // ✅ Usar el sistema de sesión centralizado
+    if (window.session) {
+      window.session.updateHeader();
+    }
+  });
+</script>
