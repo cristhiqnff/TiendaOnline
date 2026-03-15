@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{TITLE}} - Tienda Online</title>
+  <meta name="description" content="{{DESCRIPTION}}">
+  <meta name="keywords" content="{{KEYWORDS}}">
+  <meta name="author" content="Tienda Online">
+  
+  <!-- CSS Base -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="styles.css">
+  
+  <!-- CSS Adicional -->
+  {{EXTRA_HEAD}}
+  
+  <!-- Variables de página para JavaScript -->
+  <script>
+    window.PAGE_CONFIG = {
+      title: '{{TITLE}}',
+      section: '{{SECTION}}',
+      userRole: '{{USER_ROLE}}',
+      requiresAuth: '{{REQUIRES_AUTH}}' === 'true',
+      requiresVendedor: '{{REQUIRES_VENDEDOR}}' === 'true',
+      requiresAdmin: '{{REQUIRES_ADMIN}}' === 'true'
+    };
+  </script>
+</head>
+<body class="{{BODY_CLASS}}">
+  <!-- Header -->
+  {{HEADER}}
+  
+  <!-- Breadcrumb (si existe) -->
+  {{BREADCRUMB}}
+  
+  <!-- Contenido Principal -->
+  <main class="{{MAIN_CLASS}}">
+    {{CONTENT}}
+  </main>
+  
+  <!-- Footer -->
+  {{FOOTER}}
+  
+  <!-- Scripts Base -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="components/loader.js"></script>
+  <script src="auth.js"></script>
+  <script src="cart.js"></script>
+  <script src="ui.js"></script>
+  
+  <!-- Scripts Adicionales -->
+  {{EXTRA_SCRIPTS}}
+  
+  <!-- Script de inicialización automática -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Inicializar componentes
+      if (window.ComponentLoader) {
+        window.ComponentLoader.init();
+      }
+      
+      // Validar acceso si es necesario
+      if (window.PAGE_CONFIG.requiresAuth && window.auth) {
+        if (!window.auth.isLoggedIn()) {
+          window.location.href = 'login.html';
+          return;
+        }
+      }
+      
+      if (window.PAGE_CONFIG.requiresVendedor && window.auth) {
+        window.auth.requireVendedor();
+      }
+      
+      if (window.PAGE_CONFIG.requiresAdmin && window.auth) {
+        window.auth.requireAdmin();
+      }
+      
+      // Actualizar año actual
+      if (window.ui && window.ui.setYear) {
+        window.ui.setYear();
+      }
+      
+      // Inicializar navegación
+      if (window.ui && window.ui.initNavigation) {
+        window.ui.initNavigation();
+      }
+      
+      // Ejecutar función específica de página si existe
+      if (typeof window.initPage === 'function') {
+        window.initPage();
+      }
+    });
+  </script>
+</body>
+</html>

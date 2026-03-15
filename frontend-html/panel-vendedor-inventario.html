@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inventario - Tienda Online</title>
+  <meta name="description" content="Gestiona tu inventario en el panel de vendedor">
+  <meta name="keywords" content="inventario, stock, gestión, vendedor">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .vendedor-sidebar {
+      background: #12151a;
+      min-height: calc(100vh - 120px);
+      border-radius: 0 var(--app-radius) var(--app-radius) 0;
+      padding: 1.5rem 0;
+    }
+
+    .vendedor-sidebar .nav-link {
+      color: #d5dae3;
+      padding: 0.75rem 1.5rem;
+      border-radius: 0;
+      transition: all 0.3s ease;
+      border-left: 3px solid transparent;
+    }
+
+    .vendedor-sidebar .nav-link:hover,
+    .vendedor-sidebar .nav-link.active {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--app-brand);
+      border-left-color: var(--app-brand);
+    }
+
+    .vendedor-sidebar .nav-link i {
+      width: 20px;
+      margin-right: 0.75rem;
+    }
+
+    .vendedor-content {
+      padding: 2rem;
+    }
+
+    .page-header {
+      background: var(--app-surface);
+      border: 1px solid var(--app-border);
+      border-radius: var(--app-radius);
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .page-header h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      margin: 0;
+      color: var(--app-text);
+    }
+
+    .page-header .breadcrumb {
+      background: none;
+      padding: 0;
+      margin: 0.5rem 0 0 0;
+    }
+
+    .content-section {
+      background: var(--app-surface);
+      border: 1px solid var(--app-border);
+      border-radius: var(--app-radius);
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .stock-badge {
+      font-size: 0.75rem;
+      padding: 0.25rem 0.5rem;
+      border-radius: 12px;
+    }
+
+    .stock-high {
+      background: rgba(0, 166, 80, 0.1);
+      color: var(--app-accent);
+    }
+
+    .stock-medium {
+      background: rgba(255, 230, 0, 0.1);
+      color: var(--app-brand);
+    }
+
+    .stock-low {
+      background: rgba(231, 76, 60, 0.1);
+      color: #e74c3c;
+    }
+
+    .stock-none {
+      background: rgba(231, 76, 60, 0.2);
+      color: #e74c3c;
+    }
+
+    .inventory-table {
+      background: var(--app-surface);
+      border-radius: var(--app-radius);
+      overflow: hidden;
+    }
+
+    .inventory-table table {
+      margin: 0;
+    }
+
+    .inventory-table th {
+      background: rgba(0, 0, 0, 0.05);
+      border-bottom: 2px solid var(--app-border);
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      letter-spacing: 0.5px;
+    }
+
+    .stock-input {
+      width: 80px;
+    }
+
+    @media (max-width: 768px) {
+      .vendedor-sidebar {
+        min-height: auto;
+        margin-bottom: 1rem;
+      }
+
+      .vendedor-content {
+        padding: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header principal -->
+  <header class="ml-header ml-header-dark sticky-top shadow-sm">
+    <div class="container py-2">
+      <div class="d-flex gap-3 align-items-center">
+        <a class="ml-brand" href="index.html" aria-label="Ir al Inicio de Tienda Online">Tienda Online</a>
+        <form class="flex-grow-1 position-relative" role="search" id="formBuscador">
+          <div class="input-group">
+            <span class="input-group-text bg-white bg-opacity-10 border-0 text-white" id="search-addon" aria-hidden="true">🔍</span>
+            <input class="form-control" id="busqueda" type="search" placeholder="Buscar productos, categoría o marca..." aria-label="Buscar" aria-describedby="search-addon" autocomplete="off">
+          </div>
+        </form>
+        <a class="btn btn-outline-light position-relative" href="carrito.html" aria-label="Carrito">
+          Carrito
+          <span id="cartCount" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="display:none;">0</span>
+        </a>
+      </div>
+      <div class="d-flex gap-3 mt-2 small align-items-center flex-wrap">
+        <a class="text-dark text-decoration-none" href="categorias.html">Categorías</a>
+        <a class="text-dark text-decoration-none" href="mis-pedidos.html">Mis pedidos</a>
+        <span id="navVendedor" style="display:none;"><a class="text-dark text-decoration-none" href="panel-vendedor.html">Panel de vendedor</a></span>
+        <span id="navAdmin" style="display:none;"><a class="text-dark text-decoration-none" href="admin.html">Administración</a></span>
+        <span id="navGuest"><a class="text-dark text-decoration-none" href="login.html">Iniciar sesión</a> <a class="text-dark text-decoration-none" href="registro.html">Registrarse</a></span>
+        <span id="navUser" style="display:none;" class="ms-auto d-flex gap-3 align-items-center">
+          <a class="text-dark text-decoration-none" href="perfil.html"><span id="navUserName">Mi cuenta</span></a>
+          <button class="btn btn-sm btn-outline-dark" type="button" id="btnLogout">Cerrar sesión</button>
+        </span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Navegación breadcrumb -->
+  <nav class="bg-light border-bottom">
+    <div class="container py-2">
+      <div class="d-flex align-items-center gap-3">
+        <a href="index.html" class="text-decoration-none text-muted">Inicio</a>
+        <span class="text-muted">/</span>
+        <a href="panel-vendedor.html" class="text-decoration-none text-muted">Panel de Vendedor</a>
+        <span class="text-muted">/</span>
+        <span class="text-dark fw-semibold">Inventario</span>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Layout principal con sidebar -->
+  <main class="container-fluid my-4">
+    <div class="row">
+      <!-- Sidebar de navegación -->
+      <div class="col-lg-2 col-md-3">
+        <div class="vendedor-sidebar">
+          <nav class="nav flex-column">
+            <a class="nav-link" href="panel-vendedor.html">
+              <i class="fas fa-tachometer-alt"></i> Dashboard
+            </a>
+            <a class="nav-link" href="panel-vendedor-productos.html">
+              <i class="fas fa-box"></i> Mis Productos
+            </a>
+            <a class="nav-link" href="panel-vendedor-agregar.html">
+              <i class="fas fa-plus-circle"></i> Agregar Producto
+            </a>
+            <a class="nav-link active" href="panel-vendedor-inventario.html">
+              <i class="fas fa-warehouse"></i> Inventario
+            </a>
+            <a class="nav-link" href="panel-vendedor-pedidos.html">
+              <i class="fas fa-shopping-bag"></i> Pedidos
+            </a>
+            <a class="nav-link" href="panel-vendedor-ventas.html">
+              <i class="fas fa-chart-line"></i> Mis Ventas
+            </a>
+            <a class="nav-link" href="panel-vendedor-estadisticas.html">
+              <i class="fas fa-chart-bar"></i> Estadísticas
+            </a>
+            <a class="nav-link" href="panel-vendedor-config.html">
+              <i class="fas fa-cog"></i> Configuración
+            </a>
+          </nav>
+        </div>
+      </div>
+
+      <!-- Contenido principal -->
+      <div class="col-lg-10 col-md-9">
+        <div class="vendedor-content">
+          <div class="page-header">
+            <h1>Inventario</h1>
+            <div class="d-flex gap-2">
+              <button class="btn btn-outline-secondary" onclick="exportarInventario()">
+                <i class="fas fa-download me-1"></i> Exportar
+              </button>
+              <button class="btn btn-outline-primary" onclick="actualizarInventario()">
+                <i class="fas fa-sync me-1"></i> Actualizar
+              </button>
+            </div>
+          </div>
+
+          <div class="content-section">
+            <!-- Estadísticas del inventario -->
+            <div class="row mb-4">
+              <div class="col-md-3">
+                <div class="d-flex align-items-center p-3 bg-light rounded">
+                  <i class="fas fa-boxes fa-2x text-primary me-3"></i>
+                  <div>
+                    <div class="h4 mb-0" id="totalItems">0</div>
+                    <div class="text-muted small">Total Items</div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="d-flex align-items-center p-3 bg-light rounded">
+                  <i class="fas fa-check-circle fa-2x text-success me-3"></i>
+                  <div>
+                    <div class="h4 mb-0" id="stockDisponible">0</div>
+                    <div class="text-muted small">Stock Disponible</div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="d-flex align-items-center p-3 bg-light rounded">
+                  <i class="fas fa-exclamation-triangle fa-2x text-warning me-3"></i>
+                  <div>
+                    <div class="h4 mb-0" id="stockBajo">0</div>
+                    <div class="text-muted small">Stock Bajo</div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="d-flex align-items-center p-3 bg-light rounded">
+                  <i class="fas fa-times-circle fa-2x text-danger me-3"></i>
+                  <div>
+                    <div class="h4 mb-0" id="sinStock">0</div>
+                    <div class="text-muted small">Sin Stock</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Alertas de stock -->
+            <div class="alert alert-warning mb-4" id="alertasStock" style="display: none;">
+              <h6 class="alert-heading">
+                <i class="fas fa-exclamation-triangle me-2"></i>Alertas de Stock
+              </h6>
+              <div id="alertasContent"></div>
+            </div>
+
+            <!-- Filtros y búsqueda -->
+            <div class="row mb-4">
+              <div class="col-md-4">
+                <div class="input-group">
+                  <span class="input-group-text"><i class="fas fa-search"></i></span>
+                  <input type="text" class="form-control" id="buscarInventario" placeholder="Buscar productos...">
+                </div>
+              </div>
+              <div class="col-md-3">
+                <select class="form-select" id="filtroCategoria">
+                  <option value="">Todas las categorías</option>
+                  <option value="Electrónica">Electrónica</option>
+                  <option value="Ropa">Ropa</option>
+                  <option value="Hogar">Hogar</option>
+                  <option value="Deportes">Deportes</option>
+                  <option value="Libros">Libros</option>
+                  <option value="Otros">Otros</option>
+                </select>
+              </div>
+              <div class="col-md-3">
+                <select class="form-select" id="filtroStock">
+                  <option value="">Todos los niveles</option>
+                  <option value="alto">Stock Alto</option>
+                  <option value="medio">Stock Medio</option>
+                  <option value="bajo">Stock Bajo</option>
+                  <option value="agotado">Agotado</option>
+                </select>
+              </div>
+              <div class="col-md-2">
+                <button class="btn btn-primary w-100" onclick="actualizarStockMasivo()">
+                  <i class="fas fa-edit me-1"></i> Actualizar
+                </button>
+              </div>
+            </div>
+
+            <!-- Tabla de inventario -->
+            <div class="inventory-table">
+              <table class="table table-hover mb-0">
+                <thead>
+                  <tr>
+                    <th>
+                      <input type="checkbox" class="form-check-input" id="selectAll">
+                    </th>
+                    <th>Producto</th>
+                    <th>Categoría</th>
+                    <th>SKU</th>
+                    <th>Stock Actual</th>
+                    <th>Stock Mínimo</th>
+                    <th>Estado</th>
+                    <th>Valor Total</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody id="inventarioTable">
+                  <tr>
+                    <td colspan="9" class="text-center text-muted">Cargando inventario...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Paginación -->
+            <nav aria-label="Paginación de inventario" class="mt-4">
+              <ul class="pagination justify-content-center" id="pagination">
+                <!-- La paginación se generará dinámicamente -->
+              </ul>
+            </nav>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-dark text-white pt-5 pb-3 mt-5">
+    <div class="container">
+      <div class="border-top border-secondary pt-3 text-center small text-muted">
+        © <span id="currentYear"></span> Tienda Online — Todos los derechos reservados.
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="auth.js"></script>
+  <script src="cart.js"></script>
+  <script src="ui.js"></script>
+  <script>
+    // Control de acceso - Solo vendedores pueden acceder
+    document.addEventListener('DOMContentLoaded', () => {
+      if (window.auth && window.auth.requireVendedor) {
+        window.auth.requireVendedor(); // Redirige a index.html si no es vendedor
+      }
+      
+      // Actualizar año actual
+      if (window.ui && window.ui.setYear) {
+        window.ui.setYear();
+      }
+
+      // Cargar inventario
+      cargarInventario();
+      
+      // Configurar filtros
+      configurarFiltros();
+    });
+
+    function cargarInventario() {
+      // Simular carga de inventario (reemplazar con API real)
+      setTimeout(() => {
+        const inventario = [
+          { id: 1, nombre: 'iPhone 13', categoria: 'Electrónica', sku: 'IP13-128-BLK', stock: 3, stockMinimo: 5, precio: 999 },
+          { id: 2, nombre: 'Laptop Dell', categoria: 'Electrónica', sku: 'LP-DELL-15', stock: 15, stockMinimo: 5, precio: 1299 },
+          { id: 3, nombre: 'Camiseta Nike', categoria: 'Ropa', sku: 'CAM-NIKE-M', stock: 0, stockMinimo: 10, precio: 49 },
+          { id: 4, nombre: 'Silla Gaming', categoria: 'Hogar', sku: 'SG-RGB-01', stock: 2, stockMinimo: 5, precio: 299 },
+          { id: 5, nombre: 'Auriculares BT', categoria: 'Electrónica', sku: 'AUR-BT-PRO', stock: 8, stockMinimo: 10, precio: 89 }
+        ];
+
+        renderizarInventario(inventario);
+        actualizarEstadisticas(inventario);
+        mostrarAlertas(inventario);
+      }, 1000);
+    }
+
+    function renderizarInventario(inventario) {
+      const tbody = document.getElementById('inventarioTable');
+      
+      if (inventario.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="9" class="text-center py-5">
+              <i class="fas fa-warehouse fa-3x text-muted mb-3"></i>
+              <h5 class="text-muted">No hay productos en el inventario</h5>
+              <p class="text-muted">Agrega productos para empezar a gestionar tu inventario</p>
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      tbody.innerHTML = inventario.map(item => {
+        const stockStatus = getStockStatus(item.stock, item.stockMinimo);
+        const valorTotal = item.stock * item.precio;
+        
+        return `
+          <tr>
+            <td>
+              <input type="checkbox" class="form-check-input" data-id="${item.id}">
+            </td>
+            <td>
+              <div class="d-flex align-items-center">
+                <img src="https://via.placeholder.com/40x40" alt="${item.nombre}" class="rounded me-2" width="40" height="40">
+                <div>
+                  <div class="fw-semibold">${item.nombre}</div>
+                  <small class="text-muted">${item.sku}</small>
+                </div>
+              </div>
+            </td>
+            <td>${item.categoria}</td>
+            <td>${item.sku}</td>
+            <td>
+              <input type="number" class="form-control form-control-sm stock-input" value="${item.stock}" data-id="${item.id}" min="0">
+            </td>
+            <td>
+              <input type="number" class="form-control form-control-sm stock-input" value="${item.stockMinimo}" data-id="${item.id}" min="0">
+            </td>
+            <td>
+              <span class="stock-badge ${stockStatus.class}">${stockStatus.text}</span>
+            </td>
+            <td class="fw-semibold">$${valorTotal.toLocaleString()}</td>
+            <td>
+              <div class="btn-group btn-group-sm">
+                <button class="btn btn-outline-primary" onclick="verHistorial(${item.id})">
+                  <i class="fas fa-history"></i>
+                </button>
+                <button class="btn btn-outline-success" onclick="reabastecer(${item.id})">
+                  <i class="fas fa-plus"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function getStockStatus(stock, minimo) {
+      if (stock === 0) {
+        return { class: 'stock-none', text: 'Agotado' };
+      } else if (stock < minimo) {
+        return { class: 'stock-low', text: 'Bajo' };
+      } else if (stock < minimo * 2) {
+        return { class: 'stock-medium', text: 'Medio' };
+      } else {
+        return { class: 'stock-high', text: 'Bueno' };
+      }
+    }
+
+    function actualizarEstadisticas(inventario) {
+      const totalItems = inventario.reduce((sum, item) => sum + item.stock, 0);
+      const stockDisponible = inventario.filter(item => item.stock > 0).reduce((sum, item) => sum + item.stock, 0);
+      const stockBajo = inventario.filter(item => item.stock > 0 && item.stock < item.stockMinimo).length;
+      const sinStock = inventario.filter(item => item.stock === 0).length;
+
+      document.getElementById('totalItems').textContent = totalItems.toLocaleString();
+      document.getElementById('stockDisponible').textContent = stockDisponible.toLocaleString();
+      document.getElementById('stockBajo').textContent = stockBajo;
+      document.getElementById('sinStock').textContent = sinStock;
+    }
+
+    function mostrarAlertas(inventario) {
+      const alertas = inventario.filter(item => item.stock < item.stockMinimo);
+      const alertasDiv = document.getElementById('alertasStock');
+      const alertasContent = document.getElementById('alertasContent');
+
+      if (alertas.length > 0) {
+        alertasDiv.style.display = 'block';
+        alertasContent.innerHTML = alertas.map(item => `
+          <div class="d-flex justify-content-between align-items-center">
+            <span><strong>${item.nombre}</strong> - Stock actual: ${item.stock} (mínimo: ${item.stockMinimo})</span>
+            <button class="btn btn-sm btn-warning" onclick="reabastecer(${item.id})">
+              <i class="fas fa-plus me-1"></i> Reabastecer
+            </button>
+          </div>
+        `).join('<hr>');
+      } else {
+        alertasDiv.style.display = 'none';
+      }
+    }
+
+    function configurarFiltros() {
+      document.getElementById('buscarInventario').addEventListener('input', filtrarInventario);
+      document.getElementById('filtroCategoria').addEventListener('change', filtrarInventario);
+      document.getElementById('filtroStock').addEventListener('change', filtrarInventario);
+      document.getElementById('selectAll').addEventListener('change', toggleSelectAll);
+    }
+
+    function filtrarInventario() {
+      // Implementar lógica de filtrado (placeholder)
+      console.log('Filtrando inventario...');
+    }
+
+    function toggleSelectAll() {
+      const checkboxes = document.querySelectorAll('#inventarioTable input[type="checkbox"]');
+      const selectAll = document.getElementById('selectAll');
+      
+      checkboxes.forEach(checkbox => {
+        checkbox.checked = selectAll.checked;
+      });
+    }
+
+    function verHistorial(id) {
+      // Implementar vista de historial de stock
+      console.log('Ver historial del producto:', id);
+      alert('Función de historial en desarrollo');
+    }
+
+    function reabastecer(id) {
+      const cantidad = prompt('Cantidad a agregar al stock:');
+      if (cantidad && !isNaN(cantidad) && parseInt(cantidad) > 0) {
+        console.log('Reabasteciendo producto:', id, 'cantidad:', cantidad);
+        alert(`Se agregaron ${cantidad} unidades al stock`);
+        cargarInventario(); // Recargar inventario
+      }
+    }
+
+    function actualizarStockMasivo() {
+      const selected = document.querySelectorAll('#inventarioTable input[type="checkbox"]:checked');
+      if (selected.length === 0) {
+        alert('Por favor selecciona al menos un producto');
+        return;
+      }
+
+      const cantidad = prompt('Cantidad a agregar a los productos seleccionados:');
+      if (cantidad && !isNaN(cantidad) && parseInt(cantidad) > 0) {
+        console.log('Actualizando stock masivo:', selected.length, 'productos');
+        alert(`Se agregaron ${cantidad} unidades a ${selected.length} productos`);
+        cargarInventario(); // Recargar inventario
+      }
+    }
+
+    function actualizarInventario() {
+      // Implementar actualización del inventario
+      console.log('Actualizando inventario...');
+      alert('Inventario actualizado correctamente');
+      cargarInventario();
+    }
+
+    function exportarInventario() {
+      // Implementar exportación del inventario
+      console.log('Exportando inventario...');
+      alert('Función de exportación en desarrollo');
+    }
+  </script>
+</body>
+</html>

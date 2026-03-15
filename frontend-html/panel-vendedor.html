@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Panel de vendedor - Gestiona tu tienda en Tienda Online">
+  <meta name="author" content="Tienda Online">
+  <meta name="keywords" content="panel vendedor, ecommerce, tienda online">
+  <title>Panel de Vendedor - Tienda Online</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    /* Estilos específicos para el panel de vendedor */
+    .vendedor-sidebar {
+      background: #12151a;
+      min-height: calc(100vh - 120px);
+      border-radius: 0 var(--app-radius) var(--app-radius) 0;
+      padding: 1.5rem 0;
+    }
+
+    .vendedor-sidebar .nav-link {
+      color: #d5dae3;
+      padding: 0.75rem 1.5rem;
+      border-radius: 0;
+      transition: all 0.3s ease;
+      border-left: 3px solid transparent;
+    }
+
+    .vendedor-sidebar .nav-link:hover,
+    .vendedor-sidebar .nav-link.active {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--app-brand);
+      border-left-color: var(--app-brand);
+    }
+
+    .vendedor-sidebar .nav-link i {
+      width: 20px;
+      margin-right: 0.75rem;
+    }
+
+    .vendedor-content {
+      padding: 2rem;
+    }
+
+    .metric-card {
+      background: var(--app-surface);
+      border: 1px solid var(--app-border);
+      border-radius: var(--app-radius);
+      box-shadow: var(--app-shadow);
+      padding: 1.5rem;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .metric-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
+    }
+
+    .metric-card .metric-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--app-text);
+    }
+
+    .metric-card .metric-label {
+      color: var(--app-muted);
+      font-size: 0.875rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .metric-card .metric-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+    }
+
+    .metric-card.primary .metric-icon {
+      background: rgba(0, 166, 80, 0.1);
+      color: var(--app-accent);
+    }
+
+    .metric-card.success .metric-icon {
+      background: rgba(0, 166, 80, 0.1);
+      color: var(--app-accent);
+    }
+
+    .metric-card.warning .metric-icon {
+      background: rgba(255, 230, 0, 0.1);
+      color: var(--app-brand);
+    }
+
+    .metric-card.info .metric-icon {
+      background: rgba(52, 152, 219, 0.1);
+      color: #3498db;
+    }
+
+    .page-header {
+      background: var(--app-surface);
+      border: 1px solid var(--app-border);
+      border-radius: var(--app-radius);
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .page-header h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      margin: 0;
+      color: var(--app-text);
+    }
+
+    .page-header .breadcrumb {
+      background: none;
+      padding: 0;
+      margin: 0.5rem 0 0 0;
+    }
+
+    .content-section {
+      background: var(--app-surface);
+      border: 1px solid var(--app-border);
+      border-radius: var(--app-radius);
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .product-card {
+      background: var(--app-surface);
+      border: 1px solid var(--app-border);
+      border-radius: var(--app-radius);
+      overflow: hidden;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .product-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--app-shadow);
+    }
+
+    .product-card img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+    }
+
+    .product-card .card-body {
+      padding: 1rem;
+    }
+
+    .stock-badge {
+      font-size: 0.75rem;
+      padding: 0.25rem 0.5rem;
+      border-radius: 12px;
+    }
+
+    .stock-high {
+      background: rgba(0, 166, 80, 0.1);
+      color: var(--app-accent);
+    }
+
+    .stock-medium {
+      background: rgba(255, 230, 0, 0.1);
+      color: var(--app-brand);
+    }
+
+    .stock-low {
+      background: rgba(231, 76, 60, 0.1);
+      color: #e74c3c;
+    }
+
+    .order-table {
+      background: var(--app-surface);
+      border-radius: var(--app-radius);
+      overflow: hidden;
+    }
+
+    .order-table table {
+      margin: 0;
+    }
+
+    .order-table th {
+      background: rgba(0, 0, 0, 0.05);
+      border-bottom: 2px solid var(--app-border);
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      letter-spacing: 0.5px;
+    }
+
+    .status-badge {
+      font-size: 0.75rem;
+      padding: 0.25rem 0.75rem;
+      border-radius: 12px;
+      font-weight: 600;
+    }
+
+    .status-pending {
+      background: rgba(255, 230, 0, 0.1);
+      color: var(--app-brand);
+    }
+
+    .status-sent {
+      background: rgba(52, 152, 219, 0.1);
+      color: #3498db;
+    }
+
+    .status-delivered {
+      background: rgba(0, 166, 80, 0.1);
+      color: var(--app-accent);
+    }
+
+    .status-cancelled {
+      background: rgba(231, 76, 60, 0.1);
+      color: #e74c3c;
+    }
+
+    @media (max-width: 768px) {
+      .vendedor-sidebar {
+        min-height: auto;
+        margin-bottom: 1rem;
+      }
+
+      .vendedor-content {
+        padding: 1rem;
+      }
+
+      .metric-card {
+        margin-bottom: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header igual al resto del sitio -->
+  <header class="ml-header ml-header-dark sticky-top shadow-sm">
+    <div class="container py-2">
+      <div class="d-flex gap-3 align-items-center">
+        <a class="ml-brand" href="index.html" aria-label="Ir al Inicio de Tienda Online">Tienda Online</a>
+        <form class="flex-grow-1 position-relative" role="search" id="formBuscador">
+          <div class="input-group">
+            <span class="input-group-text bg-white bg-opacity-10 border-0 text-white" id="search-addon" aria-hidden="true">🔍</span>
+            <input class="form-control" id="busqueda" type="search" placeholder="Buscar productos, categoría o marca..." aria-label="Buscar" aria-describedby="search-addon" autocomplete="off">
+          </div>
+        </form>
+        <a class="btn btn-outline-light position-relative" href="carrito.html" aria-label="Carrito">
+          Carrito
+          <span id="cartCount" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="display:none;">0</span>
+        </a>
+      </div>
+      <div class="d-flex gap-3 mt-2 small align-items-center flex-wrap">
+        <a class="text-dark text-decoration-none" href="categorias.html">Categorías</a>
+        <a class="text-dark text-decoration-none" href="mis-pedidos.html">Mis pedidos</a>
+        <span id="navVendedor" style="display:none;"><a class="text-dark text-decoration-none" href="panel-vendedor.html">Panel de vendedor</a></span>
+        <span id="navUser" style="display:none;" class="ms-auto d-flex gap-3 align-items-center">
+          <a class="text-dark text-decoration-none" href="perfil.html"><span id="navUserName">Mi cuenta</span></a>
+          <button class="btn btn-sm btn-outline-dark" type="button" id="btnLogout">Cerrar sesión</button>
+        </span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Navegación breadcrumb -->
+  <nav class="bg-light border-bottom">
+    <div class="container py-2">
+      <div class="d-flex align-items-center gap-3">
+        <a href="index.html" class="text-decoration-none text-muted">Inicio</a>
+        <span class="text-muted">/</span>
+        <span class="text-dark fw-semibold">Panel de Vendedor</span>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Layout principal con sidebar -->
+  <main class="container-fluid my-4">
+    <div class="row">
+      <!-- Sidebar de navegación -->
+      <div class="col-lg-2 col-md-3">
+        <div class="vendedor-sidebar">
+          <nav class="nav flex-column">
+            <a class="nav-link active" href="#dashboard" data-section="dashboard">
+              <i class="fas fa-tachometer-alt"></i> Dashboard
+            </a>
+            <a class="nav-link" href="#productos" data-section="productos">
+              <i class="fas fa-box"></i> Mis Productos
+            </a>
+            <a class="nav-link" href="#agregar-producto" data-section="agregar-producto">
+              <i class="fas fa-plus-circle"></i> Agregar Producto
+            </a>
+            <a class="nav-link" href="#inventario" data-section="inventario">
+              <i class="fas fa-warehouse"></i> Inventario
+            </a>
+            <a class="nav-link" href="#pedidos" data-section="pedidos">
+              <i class="fas fa-shopping-bag"></i> Pedidos
+            </a>
+            <a class="nav-link" href="#estadisticas" data-section="estadisticas">
+              <i class="fas fa-chart-line"></i> Estadísticas
+            </a>
+            <a class="nav-link" href="#configuracion" data-section="configuracion">
+              <i class="fas fa-cog"></i> Configuración
+            </a>
+          </nav>
+        </div>
+      </div>
+
+      <!-- Contenido principal -->
+      <div class="col-lg-10 col-md-9">
+        <div class="vendedor-content">
+          <!-- Dashboard -->
+          <div id="dashboard-section" class="content-section active">
+            <div class="page-header">
+              <h1>Dashboard</h1>
+              <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                  <li class="breadcrumb-item"><a href="index.html">Inicio</a></li>
+                  <li class="breadcrumb-item active">Dashboard</li>
+                </ol>
+              </nav>
+            </div>
+
+            <!-- Métricas principales -->
+            <div class="row g-4 mb-4">
+              <div class="col-md-6 col-lg-3">
+                <div class="metric-card primary">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                      <div class="metric-value" id="totalProductos">0</div>
+                      <div class="metric-label">Productos Publicados</div>
+                    </div>
+                    <div class="metric-icon">
+                      <i class="fas fa-box"></i>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6 col-lg-3">
+                <div class="metric-card success">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                      <div class="metric-value" id="ventasTotales">$0</div>
+                      <div class="metric-label">Ventas Totales</div>
+                    </div>
+                    <div class="metric-icon">
+                      <i class="fas fa-dollar-sign"></i>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6 col-lg-3">
+                <div class="metric-card warning">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                      <div class="metric-value" id="pedidosPendientes">0</div>
+                      <div class="metric-label">Pedidos Pendientes</div>
+                    </div>
+                    <div class="metric-icon">
+                      <i class="fas fa-clock"></i>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6 col-lg-3">
+                <div class="metric-card info">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                      <div class="metric-value" id="ingresosMes">$0</div>
+                      <div class="metric-label">Ingresos del Mes</div>
+                    </div>
+                    <div class="metric-icon">
+                      <i class="fas fa-chart-line"></i>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Contenido adicional del dashboard -->
+            <div class="row">
+              <div class="col-lg-8">
+                <div class="content-section">
+                  <h5 class="mb-3">Últimos Pedidos</h5>
+                  <div class="table-responsive">
+                    <table class="table table-hover">
+                      <thead>
+                        <tr>
+                          <th>ID Pedido</th>
+                          <th>Cliente</th>
+                          <th>Total</th>
+                          <th>Estado</th>
+                          <th>Fecha</th>
+                        </tr>
+                      </thead>
+                      <tbody id="ultimosPedidos">
+                        <tr>
+                          <td colspan="5" class="text-center text-muted">Cargando pedidos...</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+              <div class="col-lg-4">
+                <div class="content-section">
+                  <h5 class="mb-3">Alertas de Stock</h5>
+                  <div id="alertasStock">
+                    <div class="text-center text-muted">Cargando alertas...</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sección de productos -->
+          <div id="productos-section" class="content-section" style="display: none;">
+            <div class="page-header">
+              <h1>Mis Productos</h1>
+              <div class="d-flex gap-2">
+                <button class="btn btn-primary" onclick="showSection('agregar-producto')">
+                  <i class="fas fa-plus me-1"></i> Agregar Producto
+                </button>
+              </div>
+            </div>
+
+            <div class="product-grid" id="productosGrid">
+              <div class="text-center py-5">
+                <div class="spinner-border text-primary" role="status">
+                  <span class="visually-hidden">Cargando...</span>
+                </div>
+                <p class="mt-2 text-muted">Cargando productos...</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sección agregar producto -->
+          <div id="agregar-producto-section" class="content-section" style="display: none;">
+            <div class="page-header">
+              <h1>Agregar Producto</h1>
+            </div>
+
+            <form id="formAgregarProducto">
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="form-label">Nombre del Producto *</label>
+                  <input type="text" class="form-control" id="productoNombre" required>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Precio *</label>
+                  <div class="input-group">
+                    <span class="input-group-text">$</span>
+                    <input type="number" class="form-control" id="productoPrecio" step="0.01" required>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Categoría *</label>
+                  <select class="form-select" id="productoCategoria" required>
+                    <option value="">Seleccionar categoría</option>
+                    <option value="Electrónica">Electrónica</option>
+                    <option value="Ropa">Ropa</option>
+                    <option value="Hogar">Hogar</option>
+                    <option value="Deportes">Deportes</option>
+                    <option value="Libros">Libros</option>
+                    <option value="Otros">Otros</option>
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Stock *</label>
+                  <input type="number" class="form-control" id="productoStock" min="0" required>
+                </div>
+                <div class="col-12">
+                  <label class="form-label">Descripción</label>
+                  <textarea class="form-control" id="productoDescripcion" rows="4"></textarea>
+                </div>
+                <div class="col-12">
+                  <label class="form-label">Imágenes</label>
+                  <input type="file" class="form-control" id="productoImagenes" multiple accept="image/*">
+                  <div class="form-text">Puedes subir hasta 5 imágenes</div>
+                </div>
+                <div class="col-12">
+                  <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">
+                      <i class="fas fa-save me-1"></i> Guardar Producto
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="showSection('productos')">
+                      Cancelar
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+
+          <!-- Sección inventario -->
+          <div id="inventario-section" class="content-section" style="display: none;">
+            <div class="page-header">
+              <h1>Inventario</h1>
+            </div>
+
+            <div class="table-responsive">
+              <table class="table table-hover">
+                <thead>
+                  <tr>
+                    <th>Producto</th>
+                    <th>Categoría</th>
+                    <th>Stock Actual</th>
+                    <th>Stock Mínimo</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody id="inventarioTable">
+                  <tr>
+                    <td colspan="6" class="text-center text-muted">Cargando inventario...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Sección pedidos -->
+          <div id="pedidos-section" class="content-section" style="display: none;">
+            <div class="page-header">
+              <h1>Pedidos Recibidos</h1>
+            </div>
+
+            <div class="order-table">
+              <table class="table table-hover mb-0">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Cliente</th>
+                    <th>Productos</th>
+                    <th>Total</th>
+                    <th>Fecha</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody id="pedidosTable">
+                  <tr>
+                    <td colspan="7" class="text-center text-muted">Cargando pedidos...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Sección estadísticas -->
+          <div id="estadisticas-section" class="content-section" style="display: none;">
+            <div class="page-header">
+              <h1>Estadísticas</h1>
+            </div>
+
+            <div class="row">
+              <div class="col-lg-8">
+                <div class="content-section">
+                  <h5 class="mb-3">Ventas por Mes</h5>
+                  <canvas id="ventasChart" width="400" height="200"></canvas>
+                </div>
+              </div>
+              <div class="col-lg-4">
+                <div class="content-section">
+                  <h5 class="mb-3">Productos Más Vendidos</h5>
+                  <div id="productosMasVendidos">
+                    <div class="text-center text-muted">Cargando estadísticas...</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sección configuración -->
+          <div id="configuracion-section" class="content-section" style="display: none;">
+            <div class="page-header">
+              <h1>Configuración de Tienda</h1>
+            </div>
+
+            <form id="formConfiguracion">
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="form-label">Nombre de la Tienda</label>
+                  <input type="text" class="form-control" id="tiendaNombre" placeholder="Mi Tienda">
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Email de Contacto</label>
+                  <input type="email" class="form-control" id="tiendaEmail" placeholder="contacto@mitienda.com">
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Teléfono</label>
+                  <input type="tel" class="form-control" id="tiendaTelefono" placeholder="+1234567890">
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Logo de Tienda</label>
+                  <input type="file" class="form-control" id="tiendaLogo" accept="image/*">
+                </div>
+                <div class="col-12">
+                  <label class="form-label">Descripción de la Tienda</label>
+                  <textarea class="form-control" id="tiendaDescripcion" rows="4" placeholder="Describe tu tienda..."></textarea>
+                </div>
+                <div class="col-12">
+                  <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-1"></i> Guardar Configuración
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer igual al resto del sitio -->
+  <footer class="bg-dark text-white pt-5 pb-3 mt-5">
+    <div class="container">
+      <div class="border-top border-secondary pt-3 text-center small text-muted">
+        © <span id="currentYear"></span> Tienda Online — Todos los derechos reservados.
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="session.js"></script>
+  <script src="route-guard.js"></script>
+  <script src="universal-init.js"></script>
+  <script src="cart.js"></script>
+  <script src="ui.js"></script>
+  <script src="panel-vendedor.js"></script>
+  <script>
+    // Control de acceso - Solo vendedores pueden acceder
+    document.addEventListener('DOMContentLoaded', () => {
+      // El route-guard verifica automáticamente el acceso
+      if (typeof window.initPanelVendedor === 'function') {
+        window.initPanelVendedor();
+      }
+    });
+  </script>

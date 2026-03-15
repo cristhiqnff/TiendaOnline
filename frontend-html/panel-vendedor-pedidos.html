@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pedidos - Tienda Online</title>
+  <meta name="description" content="Gestiona los pedidos de tu tienda en el panel de vendedor">
+  <meta name="keywords" content="pedidos, gestión, vendedor, tienda online">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .vendedor-sidebar {
+      background: #12151a;
+      min-height: calc(100vh - 120px);
+      border-radius: 0 var(--app-radius) var(--app-radius) 0;
+      padding: 1.5rem 0;
+    }
+
+    .vendedor-sidebar .nav-link {
+      color: #d5dae3;
+      padding: 0.75rem 1.5rem;
+      border-radius: 0;
+      transition: all 0.3s ease;
+      border-left: 3px solid transparent;
+    }
+
+    .vendedor-sidebar .nav-link:hover,
+    .vendedor-sidebar .nav-link.active {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--app-brand);
+      border-left-color: var(--app-brand);
+    }
+
+    .vendedor-sidebar .nav-link i {
+      width: 20px;
+      margin-right: 0.75rem;
+    }
+
+    .vendedor-content {
+      padding: 2rem;
+    }
+
+    .page-header {
+      background: var(--app-surface);
+      border: 1px solid var(--app-border);
+      border-radius: var(--app-radius);
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .page-header h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      margin: 0;
+      color: var(--app-text);
+    }
+
+    .page-header .breadcrumb {
+      background: none;
+      padding: 0;
+      margin: 0.5rem 0 0 0;
+    }
+
+    .content-section {
+      background: var(--app-surface);
+      border: 1px solid var(--app-border);
+      border-radius: var(--app-radius);
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .order-table {
+      background: var(--app-surface);
+      border-radius: var(--app-radius);
+      overflow: hidden;
+    }
+
+    .order-table table {
+      margin: 0;
+    }
+
+    .order-table th {
+      background: rgba(0, 0, 0, 0.05);
+      border-bottom: 2px solid var(--app-border);
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      letter-spacing: 0.5px;
+    }
+
+    .status-badge {
+      font-size: 0.75rem;
+      padding: 0.25rem 0.75rem;
+      border-radius: 12px;
+      font-weight: 600;
+    }
+
+    .status-pending {
+      background: rgba(255, 230, 0, 0.1);
+      color: var(--app-brand);
+    }
+
+    .status-processing {
+      background: rgba(52, 152, 219, 0.1);
+      color: #3498db;
+    }
+
+    .status-sent {
+      background: rgba(155, 89, 182, 0.1);
+      color: #9b59b6;
+    }
+
+    .status-delivered {
+      background: rgba(0, 166, 80, 0.1);
+      color: var(--app-accent);
+    }
+
+    .status-cancelled {
+      background: rgba(231, 76, 60, 0.1);
+      color: #e74c3c;
+    }
+
+    .priority-high {
+      border-left: 4px solid #e74c3c;
+    }
+
+    .priority-medium {
+      border-left: 4px solid var(--app-brand);
+    }
+
+    .priority-low {
+      border-left: 4px solid var(--app-accent);
+    }
+
+    @media (max-width: 768px) {
+      .vendedor-sidebar {
+        min-height: auto;
+        margin-bottom: 1rem;
+      }
+
+      .vendedor-content {
+        padding: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header principal -->
+  <header class="ml-header ml-header-dark sticky-top shadow-sm">
+    <div class="container py-2">
+      <div class="d-flex gap-3 align-items-center">
+        <a class="ml-brand" href="index.html" aria-label="Ir al Inicio de Tienda Online">Tienda Online</a>
+        <form class="flex-grow-1 position-relative" role="search" id="formBuscador">
+          <div class="input-group">
+            <span class="input-group-text bg-white bg-opacity-10 border-0 text-white" id="search-addon" aria-hidden="true">🔍</span>
+            <input class="form-control" id="busqueda" type="search" placeholder="Buscar productos, categoría o marca..." aria-label="Buscar" aria-describedby="search-addon" autocomplete="off">
+          </div>
+        </form>
+        <a class="btn btn-outline-light position-relative" href="carrito.html" aria-label="Carrito">
+          Carrito
+          <span id="cartCount" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="display:none;">0</span>
+        </a>
+      </div>
+      <div class="d-flex gap-3 mt-2 small align-items-center flex-wrap">
+        <a class="text-dark text-decoration-none" href="categorias.html">Categorías</a>
+        <a class="text-dark text-decoration-none" href="mis-pedidos.html">Mis pedidos</a>
+        <span id="navVendedor" style="display:none;"><a class="text-dark text-decoration-none" href="panel-vendedor.html">Panel de vendedor</a></span>
+        <span id="navAdmin" style="display:none;"><a class="text-dark text-decoration-none" href="admin.html">Administración</a></span>
+        <span id="navGuest"><a class="text-dark text-decoration-none" href="login.html">Iniciar sesión</a> <a class="text-dark text-decoration-none" href="registro.html">Registrarse</a></span>
+        <span id="navUser" style="display:none;" class="ms-auto d-flex gap-3 align-items-center">
+          <a class="text-dark text-decoration-none" href="perfil.html"><span id="navUserName">Mi cuenta</span></a>
+          <button class="btn btn-sm btn-outline-dark" type="button" id="btnLogout">Cerrar sesión</button>
+        </span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Navegación breadcrumb -->
+  <nav class="bg-light border-bottom">
+    <div class="container py-2">
+      <div class="d-flex align-items-center gap-3">
+        <a href="index.html" class="text-decoration-none text-muted">Inicio</a>
+        <span class="text-muted">/</span>
+        <a href="panel-vendedor.html" class="text-decoration-none text-muted">Panel de Vendedor</a>
+        <span class="text-muted">/</span>
+        <span class="text-dark fw-semibold">Pedidos</span>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Layout principal con sidebar -->
+  <main class="container-fluid my-4">
+    <div class="row">
+      <!-- Sidebar de navegación -->
+      <div class="col-lg-2 col-md-3">
+        <div class="vendedor-sidebar">
+          <nav class="nav flex-column">
+            <a class="nav-link" href="panel-vendedor.html">
+              <i class="fas fa-tachometer-alt"></i> Dashboard
+            </a>
+            <a class="nav-link" href="panel-vendedor-productos.html">
+              <i class="fas fa-box"></i> Mis Productos
+            </a>
+            <a class="nav-link" href="panel-vendedor-agregar.html">
+              <i class="fas fa-plus-circle"></i> Agregar Producto
+            </a>
+            <a class="nav-link" href="panel-vendedor-inventario.html">
+              <i class="fas fa-warehouse"></i> Inventario
+            </a>
+            <a class="nav-link active" href="panel-vendedor-pedidos.html">
+              <i class="fas fa-shopping-bag"></i> Pedidos
+            </a>
+            <a class="nav-link" href="panel-vendedor-ventas.html">
+              <i class="fas fa-chart-line"></i> Mis Ventas
+            </a>
+            <a class="nav-link" href="panel-vendedor-estadisticas.html">
+              <i class="fas fa-chart-bar"></i> Estadísticas
+            </a>
+            <a class="nav-link" href="panel-vendedor-config.html">
+              <i class="fas fa-cog"></i> Configuración
+            </a>
+          </nav>
+        </div>
+      </div>
+
+      <!-- Contenido principal -->
+      <div class="col-lg-10 col-md-9">
+        <div class="vendedor-content">
+          <div class="page-header">
+            <h1>Pedidos Recibidos</h1>
+            <div class="d-flex gap-2">
+              <button class="btn btn-outline-secondary" onclick="exportarPedidos()">
+                <i class="fas fa-download me-1"></i> Exportar
+              </button>
+              <button class="btn btn-outline-primary" onclick="imprimirEtiquetas()">
+                <i class="fas fa-print me-1"></i> Imprimir Etiquetas
+              </button>
+            </div>
+          </div>
+
+          <div class="content-section">
+            <!-- Estadísticas de pedidos -->
+            <div class="row mb-4">
+              <div class="col-md-3">
+                <div class="d-flex align-items-center p-3 bg-light rounded">
+                  <i class="fas fa-shopping-bag fa-2x text-primary me-3"></i>
+                  <div>
+                    <div class="h4 mb-0" id="totalPedidos">0</div>
+                    <div class="text-muted small">Total Pedidos</div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="d-flex align-items-center p-3 bg-light rounded">
+                  <i class="fas fa-clock fa-2x text-warning me-3"></i>
+                  <div>
+                    <div class="h4 mb-0" id="pedidosPendientes">0</div>
+                    <div class="text-muted small">Pendientes</div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="d-flex align-items-center p-3 bg-light rounded">
+                  <i class="fas fa-truck fa-2x text-info me-3"></i>
+                  <div>
+                    <div class="h4 mb-0" id="pedidosEnviados">0</div>
+                    <div class="text-muted small">Enviados</div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="d-flex align-items-center p-3 bg-light rounded">
+                  <i class="fas fa-check-circle fa-2x text-success me-3"></i>
+                  <div>
+                    <div class="h4 mb-0" id="pedidosEntregados">0</div>
+                    <div class="text-muted small">Entregados</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Filtros y búsqueda -->
+            <div class="row mb-4">
+              <div class="col-md-3">
+                <div class="input-group">
+                  <span class="input-group-text"><i class="fas fa-search"></i></span>
+                  <input type="text" class="form-control" id="buscarPedido" placeholder="Buscar por ID o cliente...">
+                </div>
+              </div>
+              <div class="col-md-2">
+                <select class="form-select" id="filtroEstado">
+                  <option value="">Todos los estados</option>
+                  <option value="pending">Pendiente</option>
+                  <option value="processing">Procesando</option>
+                  <option value="sent">Enviado</option>
+                  <option value="delivered">Entregado</option>
+                  <option value="cancelled">Cancelado</option>
+                </select>
+              </div>
+              <div class="col-md-2">
+                <select class="form-select" id="filtroPrioridad">
+                  <option value="">Todas las prioridades</option>
+                  <option value="high">Alta</option>
+                  <option value="medium">Media</option>
+                  <option value="low">Baja</option>
+                </select>
+              </div>
+              <div class="col-md-3">
+                <input type="date" class="form-control" id="filtroFecha">
+              </div>
+              <div class="col-md-2">
+                <button class="btn btn-primary w-100" onclick="aplicarFiltros()">
+                  <i class="fas fa-filter me-1"></i> Filtrar
+                </button>
+              </div>
+            </div>
+
+            <!-- Alertas de pedidos urgentes -->
+            <div class="alert alert-warning mb-4" id="alertasPedidos" style="display: none;">
+              <h6 class="alert-heading">
+                <i class="fas fa-exclamation-triangle me-2"></i>Pedidos Urgentes
+              </h6>
+              <div id="alertasContent"></div>
+            </div>
+
+            <!-- Tabla de pedidos -->
+            <div class="order-table">
+              <table class="table table-hover mb-0">
+                <thead>
+                  <tr>
+                    <th>
+                      <input type="checkbox" class="form-check-input" id="selectAll">
+                    </th>
+                    <th>ID Pedido</th>
+                    <th>Cliente</th>
+                    <th>Productos</th>
+                    <th>Total</th>
+                    <th>Fecha</th>
+                    <th>Estado</th>
+                    <th>Prioridad</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody id="pedidosTable">
+                  <tr>
+                    <td colspan="9" class="text-center text-muted">Cargando pedidos...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Paginación -->
+            <nav aria-label="Paginación de pedidos" class="mt-4">
+              <ul class="pagination justify-content-center" id="pagination">
+                <!-- La paginación se generará dinámicamente -->
+              </ul>
+            </nav>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Modal de detalles del pedido -->
+  <div class="modal fade" id="pedidoModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Detalles del Pedido</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body" id="pedidoModalBody">
+          <!-- Los detalles se cargarán dinámicamente -->
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+          <button type="button" class="btn btn-primary" onclick="guardarCambiosPedido()">Guardar Cambios</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="bg-dark text-white pt-5 pb-3 mt-5">
+    <div class="container">
+      <div class="border-top border-secondary pt-3 text-center small text-muted">
+        © <span id="currentYear"></span> Tienda Online — Todos los derechos reservados.
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="auth.js"></script>
+  <script src="cart.js"></script>
+  <script src="ui.js"></script>
+  <script>
+    // Control de acceso - Solo vendedores pueden acceder
+    document.addEventListener('DOMContentLoaded', () => {
+      if (window.auth && window.auth.requireVendedor) {
+        window.auth.requireVendedor(); // Redirige a index.html si no es vendedor
+      }
+      
+      // Actualizar año actual
+      if (window.ui && window.ui.setYear) {
+        window.ui.setYear();
+      }
+
+      // Cargar pedidos
+      cargarPedidos();
+      
+      // Configurar filtros
+      configurarFiltros();
+    });
+
+    function cargarPedidos() {
+      // Simular carga de pedidos (reemplazar con API real)
+      setTimeout(() => {
+        const pedidos = [
+          { 
+            id: '#1234', 
+            cliente: 'Juan Pérez', 
+            email: 'juan@email.com',
+            productos: 'iPhone 13 (1x)', 
+            total: 999, 
+            fecha: '2026-03-15', 
+            estado: 'pending',
+            prioridad: 'high'
+          },
+          { 
+            id: '#1233', 
+            cliente: 'María García', 
+            email: 'maria@email.com',
+            productos: 'Laptop Dell (1x)', 
+            total: 1299, 
+            fecha: '2026-03-14', 
+            estado: 'sent',
+            prioridad: 'medium'
+          },
+          { 
+            id: '#1232', 
+            cliente: 'Carlos López', 
+            email: 'carlos@email.com',
+            productos: 'Camiseta Nike (2x)', 
+            total: 98, 
+            fecha: '2026-03-13', 
+            estado: 'delivered',
+            prioridad: 'low'
+          },
+          { 
+            id: '#1231', 
+            cliente: 'Ana Martínez', 
+            email: 'ana@email.com',
+            productos: 'Silla Gaming (1x)', 
+            total: 299, 
+            fecha: '2026-03-12', 
+            estado: 'processing',
+            prioridad: 'medium'
+          }
+        ];
+
+        renderizarPedidos(pedidos);
+        actualizarEstadisticas(pedidos);
+        mostrarAlertas(pedidos);
+      }, 1000);
+    }
+
+    function renderizarPedidos(pedidos) {
+      const tbody = document.getElementById('pedidosTable');
+      
+      if (pedidos.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="9" class="text-center py-5">
+              <i class="fas fa-shopping-bag fa-3x text-muted mb-3"></i>
+              <h5 class="text-muted">No hay pedidos</h5>
+              <p class="text-muted">No tienes pedidos recibidos todavía</p>
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      tbody.innerHTML = pedidos.map(pedido => {
+        const priorityClass = `priority-${pedido.prioridad}`;
+        const statusClass = `status-${pedido.estado}`;
+        const statusText = getStatusText(pedido.estado);
+        const priorityText = getPriorityText(pedido.prioridad);
+        
+        return `
+          <tr class="${priorityClass}">
+            <td>
+              <input type="checkbox" class="form-check-input" data-id="${pedido.id}">
+            </td>
+            <td><strong>${pedido.id}</strong></td>
+            <td>
+              <div>
+                <div class="fw-semibold">${pedido.cliente}</div>
+                <small class="text-muted">${pedido.email}</small>
+              </div>
+            </td>
+            <td>${pedido.productos}</td>
+            <td class="fw-semibold">$${pedido.total.toLocaleString()}</td>
+            <td>${pedido.fecha}</td>
+            <td>
+              <span class="status-badge ${statusClass}">${statusText}</span>
+            </td>
+            <td>
+              <span class="badge bg-${getPriorityBadgeColor(pedido.prioridad)}">${priorityText}</span>
+            </td>
+            <td>
+              <div class="btn-group btn-group-sm">
+                <button class="btn btn-outline-primary" onclick="verDetalles('${pedido.id}')">
+                  <i class="fas fa-eye"></i>
+                </button>
+                <button class="btn btn-outline-success" onclick="cambiarEstado('${pedido.id}')">
+                  <i class="fas fa-edit"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function getStatusText(estado) {
+      const statusMap = {
+        'pending': 'Pendiente',
+        'processing': 'Procesando',
+        'sent': 'Enviado',
+        'delivered': 'Entregado',
+        'cancelled': 'Cancelado'
+      };
+      return statusMap[estado] || estado;
+    }
+
+    function getPriorityText(prioridad) {
+      const priorityMap = {
+        'high': 'Alta',
+        'medium': 'Media',
+        'low': 'Baja'
+      };
+      return priorityMap[prioridad] || prioridad;
+    }
+
+    function getPriorityBadgeColor(prioridad) {
+      const colorMap = {
+        'high': 'danger',
+        'medium': 'warning',
+        'low': 'success'
+      };
+      return colorMap[prioridad] || 'secondary';
+    }
+
+    function actualizarEstadisticas(pedidos) {
+      const total = pedidos.length;
+      const pendientes = pedidos.filter(p => p.estado === 'pending').length;
+      const enviados = pedidos.filter(p => p.estado === 'sent').length;
+      const entregados = pedidos.filter(p => p.estado === 'delivered').length;
+
+      document.getElementById('totalPedidos').textContent = total;
+      document.getElementById('pedidosPendientes').textContent = pendientes;
+      document.getElementById('pedidosEnviados').textContent = enviados;
+      document.getElementById('pedidosEntregados').textContent = entregados;
+    }
+
+    function mostrarAlertas(pedidos) {
+      const urgentes = pedidos.filter(p => p.prioridad === 'high' && p.estado !== 'delivered');
+      const alertasDiv = document.getElementById('alertasPedidos');
+      const alertasContent = document.getElementById('alertasContent');
+
+      if (urgentes.length > 0) {
+        alertasDiv.style.display = 'block';
+        alertasContent.innerHTML = urgentes.map(pedido => `
+          <div class="d-flex justify-content-between align-items-center">
+            <span><strong>${pedido.id}</strong> - ${pedido.cliente} (${getStatusText(pedido.estado)})</span>
+            <button class="btn btn-sm btn-warning" onclick="verDetalles('${pedido.id}')">
+              <i class="fas fa-eye me-1"></i> Ver Detalles
+            </button>
+          </div>
+        `).join('<hr>');
+      } else {
+        alertasDiv.style.display = 'none';
+      }
+    }
+
+    function configurarFiltros() {
+      document.getElementById('buscarPedido').addEventListener('input', filtrarPedidos);
+      document.getElementById('filtroEstado').addEventListener('change', filtrarPedidos);
+      document.getElementById('filtroPrioridad').addEventListener('change', filtrarPedidos);
+      document.getElementById('filtroFecha').addEventListener('change', filtrarPedidos);
+      document.getElementById('selectAll').addEventListener('change', toggleSelectAll);
+    }
+
+    function filtrarPedidos() {
+      // Implementar lógica de filtrado (placeholder)
+      console.log('Filtrando pedidos...');
+    }
+
+    function toggleSelectAll() {
+      const checkboxes = document.querySelectorAll('#pedidosTable input[type="checkbox"]');
+      const selectAll = document.getElementById('selectAll');
+      
+      checkboxes.forEach(checkbox => {
+        checkbox.checked = selectAll.checked;
+      });
+    }
+
+    function verDetalles(pedidoId) {
+      // Simular carga de detalles del pedido
+      const modalBody = document.getElementById('pedidoModalBody');
+      modalBody.innerHTML = `
+        <div class="row">
+          <div class="col-md-6">
+            <h6>Información del Pedido</h6>
+            <p><strong>ID:</strong> ${pedidoId}</p>
+            <p><strong>Fecha:</strong> 2026-03-15</p>
+            <p><strong>Estado:</strong>
+              <select class="form-select form-select-sm" id="modalEstado">
+                <option value="pending">Pendiente</option>
+                <option value="processing">Procesando</option>
+                <option value="sent">Enviado</option>
+                <option value="delivered">Entregado</option>
+                <option value="cancelled">Cancelado</option>
+              </select>
+            </p>
+          </div>
+          <div class="col-md-6">
+            <h6>Información del Cliente</h6>
+            <p><strong>Nombre:</strong> Juan Pérez</p>
+            <p><strong>Email:</strong> juan@email.com</p>
+            <p><strong>Teléfono:</strong> +1234567890</p>
+          </div>
+        </div>
+        <hr>
+        <h6>Productos</h6>
+        <div class="table-responsive">
+          <table class="table table-sm">
+            <thead>
+              <tr>
+                <th>Producto</th>
+                <th>Cantidad</th>
+                <th>Precio</th>
+                <th>Subtotal</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>iPhone 13</td>
+                <td>1</td>
+                <td>$999</td>
+                <td>$999</td>
+              </tr>
+            </tbody>
+            <tfoot>
+              <tr>
+                <th colspan="3">Total:</th>
+                <th>$999</th>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+        <hr>
+        <h6>Dirección de Envío</h6>
+        <p>Calle Principal #123<br>Colonia Centro<br>Ciudad, País 12345</p>
+      `;
+
+      // Mostrar modal
+      const modal = new bootstrap.Modal(document.getElementById('pedidoModal'));
+      modal.show();
+    }
+
+    function cambiarEstado(pedidoId) {
+      const nuevoEstado = prompt('Nuevo estado (pending, processing, sent, delivered, cancelled):');
+      if (nuevoEstado && ['pending', 'processing', 'sent', 'delivered', 'cancelled'].includes(nuevoEstado)) {
+        console.log('Cambiando estado del pedido:', pedidoId, 'a:', nuevoEstado);
+        alert(`Estado del pedido ${pedidoId} actualizado a ${getStatusText(nuevoEstado)}`);
+        cargarPedidos(); // Recargar pedidos
+      }
+    }
+
+    function guardarCambiosPedido() {
+      // Implementar guardado de cambios del pedido
+      console.log('Guardando cambios del pedido...');
+      alert('Cambios guardados correctamente');
+      bootstrap.Modal.getInstance(document.getElementById('pedidoModal')).hide();
+      cargarPedidos(); // Recargar pedidos
+    }
+
+    function aplicarFiltros() {
+      // Implementar aplicación de filtros
+      console.log('Aplicando filtros...');
+      alert('Filtros aplicados');
+      cargarPedidos(); // Recargar pedidos
+    }
+
+    function exportarPedidos() {
+      // Implementar exportación de pedidos
+      console.log('Exportando pedidos...');
+      alert('Función de exportación en desarrollo');
+    }
+
+    function imprimirEtiquetas() {
+      // Implementar impresión de etiquetas
+      console.log('Imprimiendo etiquetas...');
+      alert('Función de impresión en desarrollo');
+    }
+  </script>
+</body>
+</html>

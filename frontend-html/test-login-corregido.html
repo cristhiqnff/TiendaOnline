@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>✅ Test Final - Sistema de Login Corregido</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+</head>
+<body>
+  <div class="container mt-4">
+    <h1>✅ Sistema de Login Corregido</h1>
+    
+    <div class="alert alert-success">
+      <h4>🎉 Login Centralizado Corregido</h4>
+      <p>El login ahora usa el sistema <code>window.session</code> y el header se sincroniza correctamente.</p>
+    </div>
+    
+    <div class="row">
+      <div class="col-md-6">
+        <h3>✅ Correcciones Aplicadas</h3>
+        <ul class="list-group">
+          <li class="list-group-item list-group-item-success">
+            <strong>Login Centralizado</strong> - Usa window.session.setSessionUser()
+          </li>
+          <li class="list-group-item list-group-item-success">
+            <strong>Header Sincronizado</strong> - Usa window.session.updateHeader()
+          </li>
+          <li class="list-group-item list-group-item-success">
+            <strong>Componentes Actualizados</strong> - header.html corregido
+          </li>
+          <li class="list-group-item list-group-item-success">
+            <strong>Redirección por Rol</strong> - Usa window.session.getUserRole()
+          </li>
+        </ul>
+      </div>
+      
+      <div class="col-md-6">
+        <h3>🧪 Pruebas del Sistema</h3>
+        <div class="d-grid gap-2">
+          <button class="btn btn-primary" onclick="testLogin()">Test Login</button>
+          <button class="btn btn-success" onclick="testSession()">Ver Sesión</button>
+          <button class="btn btn-warning" onclick="testLogout()">Cerrar Sesión</button>
+          <button class="btn btn-info" onclick="testHeader()">Probar Header</button>
+          <a href="login.html" class="btn btn-secondary">Ir a Login</a>
+        </div>
+        
+        <div class="mt-3">
+          <h5>Estado Actual:</h5>
+          <div id="estadoActual" class="alert alert-info">
+            <strong>Cargando...</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="row mt-4">
+      <div class="col-12">
+        <h3>📋 Flujo de Login Correcto</h3>
+        <div class="row">
+          <div class="col-md-4">
+            <div class="card h-100">
+              <div class="card-body">
+                <h5 class="card-title">1. Usuario Ingresa Datos</h5>
+                <p class="card-text">Formulario envía email/password a API</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card h-100">
+              <div class="card-body">
+                <h5 class="card-title">2. API Responde</h5>
+                <p class="card-text">Devuelve token y datos del usuario</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card h-100">
+              <div class="card-body">
+                <h5 class="card-title">3. window.session.setSessionUser()</h5>
+                <p class="card-text">Guarda en tienda_online_session/token</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card h-100">
+              <div class="card-body">
+                <h5 class="card-title">4. window.session.updateHeader()</h5>
+                <p class="card-text">Actualiza header dinámicamente</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="row mt-4">
+      <div class="col-12">
+        <div class="alert alert-warning">
+          <h4>⚠️ Resultado Esperado</h4>
+          <p>Después de iniciar sesión correctamente:</p>
+          <ul>
+            <li>✅ Header muestra "Mi cuenta / Cerrar sesión"</li>
+            <li>✅ Redirección automática según rol (admin, vendedor, index)</li>
+            <li>✅ Sesión persistente entre pestañas</li>
+            <li>✅ Mis pedidos funciona para clientes</li>
+            <li>✅ Panel vendedor aparece solo para vendedores</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts del sistema de sesión -->
+  <script src="session.js"></script>
+  <script>
+    function testLogin() {
+      // Simular login exitoso
+      const user = {
+        id: "123",
+        nombre: "Usuario Test",
+        email: "test@test.com",
+        role: "cliente"
+      };
+      const token = "test-token-12345";
+      
+      if (window.session) {
+        const success = window.session.setSessionUser(user, token);
+        if (success) {
+          alert('✅ Login simulado exitosamente');
+          testSession();
+        } else {
+          alert('❌ Error al simular login');
+        }
+      } else {
+        alert('❌ window.session no disponible');
+      }
+    }
+    
+    function testSession() {
+      const estado = document.getElementById('estadoActual');
+      if (window.session) {
+        const isLoggedIn = window.session.isLoggedIn();
+        const user = window.session.getUser();
+        const userRole = window.session.getUserRole();
+        
+        estado.innerHTML = `
+          <strong>✅ Estado de Sesión:</strong><br>
+          <strong>🔐 Logueado:</strong> ${isLoggedIn}<br>
+          <strong>👤 Usuario:</strong> ${user ? user.nombre : 'No hay usuario'}<br>
+          <strong>🎭 Rol:</strong> ${userRole || 'No hay rol'}<br>
+          <strong>🔑 Token:</strong> ${window.session.getToken() || 'No hay token'}
+        `;
+        estado.className = 'alert alert-success';
+      } else {
+        estado.innerHTML = '<strong>❌ window.session no disponible</strong>';
+        estado.className = 'alert alert-danger';
+      }
+    }
+    
+    function testLogout() {
+      if (window.session) {
+        window.session.logout();
+        testSession();
+      } else {
+        alert('❌ window.session no disponible');
+      }
+    }
+    
+    function testHeader() {
+      if (window.session) {
+        window.session.updateHeader();
+        alert('✅ Header actualizado. Revisa la navegación.');
+      } else {
+        alert('❌ window.session no disponible');
+      }
+    }
+    
+    // Verificar estado al cargar
+    document.addEventListener('DOMContentLoaded', () => {
+      console.log('🎉 Verificando sistema de login corregido...');
+      testSession();
+    });
+  </script>
+</body>
+</html>

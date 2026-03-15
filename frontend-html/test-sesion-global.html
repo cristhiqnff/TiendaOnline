@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>✅ Test Final - Sistema de Sesión Global</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+</head>
+<body>
+  <div class="container mt-4">
+    <h1>✅ Sistema de Sesión Global Implementado</h1>
+    
+    <div class="alert alert-success">
+      <h4>🎉 Objeto Global window.session Creado</h4>
+      <p>El sistema ahora usa un objeto global unificado con localStorage directo.</p>
+    </div>
+    
+    <div class="row">
+      <div class="col-md-6">
+        <h3>✅ Implementación Completa</h3>
+        <ul class="list-group">
+          <li class="list-group-item list-group-item-success">
+            <strong>Objeto Global</strong> - window.session
+          </li>
+          <li class="list-group-item list-group-item-success">
+            <strong>localStorage Directo</strong> - user y token
+          </li>
+          <li class="list-group-item list-group-item-success">
+            <strong>Funciones Unificadas</strong> - getUser, getToken, isLoggedIn, logout
+          </li>
+          <li class="list-group-item list-group-item-success">
+            <strong>updateNavbar()</strong> - Control completo del menú
+          </li>
+          <li class="list-group-item list-group-item-success">
+            <strong>Roles Simples</strong> - user.rol (admin, vendedor, cliente)
+          </li>
+        </ul>
+      </div>
+      
+      <div class="col-md-6">
+        <h3>🧪 Pruebas del Sistema</h3>
+        <div class="d-grid gap-2">
+          <button class="btn btn-primary" onclick="testLogin()">Test Login</button>
+          <button class="btn btn-success" onclick="testSession()">Ver Sesión</button>
+          <button class="btn btn-warning" onclick="testLogout()">Cerrar Sesión</button>
+          <button class="btn btn-info" onclick="testNavbar()">Probar Navbar</button>
+          <a href="login.html" class="btn btn-secondary">Ir a Login</a>
+        </div>
+        
+        <div class="mt-3">
+          <h5>Estado Actual:</h5>
+          <div id="estadoActual" class="alert alert-info">
+            <strong>Cargando...</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="row mt-4">
+      <div class="col-12">
+        <h3>📋 Estructura del Objeto window.session</h3>
+        <div class="table-responsive">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>Método</th>
+                <th>Implementación</th>
+                <th>Uso</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>getUser()</code></td>
+                <td><code>JSON.parse(localStorage.getItem("user"))</code></td>
+                <td>Obtener datos del usuario</td>
+              </tr>
+              <tr>
+                <td><code>getToken()</code></td>
+                <td><code>localStorage.getItem("token")</code></td>
+                <td>Obtener token de autenticación</td>
+              </tr>
+              <tr>
+                <td><code>isLoggedIn()</code></td>
+                <td><code>!!localStorage.getItem("token")</code></td>
+                <td>Verificar si hay sesión activa</td>
+              </tr>
+              <tr>
+                <td><code>logout()</code></td>
+                <td><code>removeItem + redirect</code></td>
+                <td>Cerrar sesión y redirigir</td>
+              </tr>
+              <tr>
+                <td><code>updateNavbar()</code></td>
+                <td><code>Control de elementos DOM</code></td>
+                <td>Actualizar menú según rol</td>
+              </tr>
+              <tr>
+                <td><code>setSession()</code></td>
+                <td><code>setItem + updateNavbar</code></td>
+                <td>Establecer sesión</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    
+    <div class="row mt-4">
+      <div class="col-12">
+        <div class="alert alert-warning">
+          <h4>⚠️ Resultado Esperado</h4>
+          <p>Con el nuevo sistema:</p>
+          <ul>
+            <li>✅ El menú cambia correctamente al iniciar/cerrar sesión</li>
+            <li>✅ "Mis pedidos" solo abre si el usuario está logueado</li>
+            <li>✅ El estado de sesión es el mismo en todas las páginas</li>
+            <li>✅ No hay inconsistencias entre páginas</li>
+            <li>✅ Los roles se manejan con user.rol</li>
+            <li>✅ Todo el control del menú se hace en session.js</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts del sistema de sesión -->
+  <script src="session.js"></script>
+  <script>
+    function testLogin() {
+      // Simular login exitoso con diferentes roles
+      const roles = ['cliente', 'vendedor', 'admin'];
+      const randomRole = roles[Math.floor(Math.random() * roles.length)];
+      
+      const user = {
+        id: "123",
+        nombre: "Usuario Test",
+        email: "test@test.com",
+        rol: randomRole
+      };
+      const token = "test-token-12345";
+      
+      if (window.session) {
+        window.session.setSession(user, token);
+        alert(`✅ Login simulado como ${randomRole}`);
+        testSession();
+      } else {
+        alert('❌ window.session no disponible');
+      }
+    }
+    
+    function testSession() {
+      const estado = document.getElementById('estadoActual');
+      if (window.session) {
+        const isLoggedIn = window.session.isLoggedIn();
+        const user = window.session.getUser();
+        const token = window.session.getToken();
+        
+        estado.innerHTML = `
+          <strong>✅ Estado de Sesión:</strong><br>
+          <strong>🔐 Logueado:</strong> ${isLoggedIn}<br>
+          <strong>👤 Usuario:</strong> ${user ? user.nombre : 'No hay usuario'}<br>
+          <strong>🎭 Rol:</strong> ${user ? user.rol : 'No hay rol'}<br>
+          <strong>🔑 Token:</strong> ${token || 'No hay token'}
+        `;
+        estado.className = 'alert alert-success';
+      } else {
+        estado.innerHTML = '<strong>❌ window.session no disponible</strong>';
+        estado.className = 'alert alert-danger';
+      }
+    }
+    
+    function testLogout() {
+      if (window.session) {
+        window.session.logout();
+      } else {
+        alert('❌ window.session no disponible');
+      }
+    }
+    
+    function testNavbar() {
+      if (window.session) {
+        window.session.updateNavbar();
+        alert('✅ Navbar actualizado. Revisa la navegación.');
+      } else {
+        alert('❌ window.session no disponible');
+      }
+    }
+    
+    // Verificar estado al cargar
+    document.addEventListener('DOMContentLoaded', () => {
+      console.log('🎉 Verificando sistema de sesión global...');
+      testSession();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mis Pedidos - Tienda Online</title>
+  <meta name="description" content="Consulta y gestiona tus pedidos en Tienda Online">
+  <meta name="keywords" content="pedidos, compras, historial, tienda online">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- Header principal -->
+  <header class="ml-header ml-header-dark sticky-top shadow-sm">
+    <div class="container py-2">
+      <div class="d-flex gap-3 align-items-center">
+        <a class="ml-brand" href="index.html" aria-label="Ir al Inicio de Tienda Online">Tienda Online</a>
+        <form class="flex-grow-1 position-relative" role="search" id="formBuscador">
+          <div class="input-group">
+            <span class="input-group-text bg-white bg-opacity-10 border-0 text-white" id="search-addon" aria-hidden="true">🔍</span>
+            <input class="form-control" id="busqueda" type="search" placeholder="Buscar productos, categoría o marca..." aria-label="Buscar" aria-describedby="search-addon" autocomplete="off">
+          </div>
+        </form>
+        <a class="btn btn-outline-light position-relative" href="carrito.html" aria-label="Carrito">
+          Carrito
+          <span id="cartCount" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="display:none;">0</span>
+        </a>
+      </div>
+      <div class="d-flex gap-3 mt-2 small align-items-center flex-wrap">
+        <a class="text-dark text-decoration-none" href="categorias.html">Categorías</a>
+        <a class="text-dark text-decoration-none" href="mis-pedidos.html">Mis pedidos</a>
+        <span id="navVendedor" style="display:none;"><a class="text-dark text-decoration-none" href="panel-vendedor.html">Panel de vendedor</a></span>
+        <span id="navAdmin" style="display:none;"><a class="text-dark text-decoration-none" href="admin.html">Administración</a></span>
+        <span id="navGuest"><a class="text-dark text-decoration-none" href="login.html">Iniciar sesión</a> <a class="text-dark text-decoration-none" href="registro.html">Registrarse</a></span>
+        <span id="navUser" style="display:none;" class="ms-auto d-flex gap-3 align-items-center">
+          <a class="text-dark text-decoration-none" href="perfil.html"><span id="navUserName">Mi cuenta</span></a>
+          <button class="btn btn-sm btn-outline-dark" type="button" id="btnLogout">Cerrar sesión</button>
+        </span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Navegación breadcrumb -->
+  <nav class="bg-light border-bottom">
+    <div class="container py-2">
+      <div class="d-flex align-items-center gap-3">
+        <a href="index.html" class="text-decoration-none text-muted">Inicio</a>
+        <span class="text-muted">/</span>
+        <span class="text-dark fw-semibold">Mis Pedidos</span>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Contenido principal -->
+  <main class="container my-4">
+    <div class="page-header">
+      <h1>Mis Pedidos</h1>
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="index.html">Inicio</a></li>
+          <li class="breadcrumb-item active">Mis Pedidos</li>
+        </ol>
+      </nav>
+    </div>
+
+    <div class="content-section">
+      <!-- Filtros y búsqueda -->
+      <div class="row mb-4">
+        <div class="col-md-6">
+          <div class="input-group">
+            <span class="input-group-text"><i class="fas fa-search"></i></span>
+            <input type="text" class="form-control" id="buscarPedido" placeholder="Buscar por ID, producto o fecha...">
+          </div>
+        </div>
+        <div class="col-md-3">
+          <select class="form-select" id="filtroEstado">
+            <option value="">Todos los estados</option>
+            <option value="pendiente">Pendiente</option>
+            <option value="enviado">Enviado</option>
+            <option value="entregado">Entregado</option>
+            <option value="cancelado">Cancelado</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <select class="form-select" id="filtroPeriodo">
+            <option value="">Todos los períodos</option>
+            <option value="7">Últimos 7 días</option>
+            <option value="30">Últimos 30 días</option>
+            <option value="90">Últimos 3 meses</option>
+            <option value="365">Último año</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Lista de pedidos -->
+      <div id="pedidosContainer">
+        <div class="text-center py-5">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Cargando...</span>
+          </div>
+          <p class="mt-2 text-muted">Cargando tus pedidos...</p>
+        </div>
+      </div>
+
+      <!-- Paginación -->
+      <nav aria-label="Paginación de pedidos" class="mt-4">
+        <ul class="pagination justify-content-center" id="pagination">
+          <!-- La paginación se generará dinámicamente -->
+        </ul>
+      </nav>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-dark text-white pt-5 pb-3 mt-5">
+    <div class="container">
+      <div class="border-top border-secondary pt-3 text-center small text-muted">
+        © <span id="currentYear"></span> Tienda Online — Todos los derechos reservados.
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="session.js"></script>
+  <script src="route-guard.js"></script>
+  <script src="universal-init.js"></script>
+  <script src="cart.js"></script>
+  <script src="ui.js"></script>
+  <script src="mis-pedidos.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Inicializar funcionalidades específicas de mis pedidos
+      if (typeof window.initMisPedidos === 'function') {
+        window.initMisPedidos();
+      }
+    });
+  </script>
+</body>
+</html>

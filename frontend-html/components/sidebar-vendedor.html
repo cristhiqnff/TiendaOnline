@@ -1,0 +1,38 @@
+<!-- Sidebar del Vendedor - Componente Reutilizable -->
+<div class="col-lg-2 col-md-3">
+  <div class="vendedor-sidebar">
+    <nav class="nav flex-column">
+      <a class="nav-link {{ACTIVE_DASHBOARD}}" href="panel-vendedor.html">
+        <i class="fas fa-tachometer-alt"></i> Dashboard
+      </a>
+      <a class="nav-link {{ACTIVE_PRODUCTOS}}" href="panel-vendedor-productos.html">
+        <i class="fas fa-box"></i> Mis Productos
+      </a>
+      <a class="nav-link {{ACTIVE_AGREGAR}}" href="panel-vendedor-agregar.html">
+        <i class="fas fa-plus-circle"></i> Agregar Producto
+      </a>
+      <a class="nav-link {{ACTIVE_INVENTARIO}}" href="panel-vendedor-inventario.html">
+        <i class="fas fa-warehouse"></i> Inventario
+      </a>
+      <a class="nav-link {{ACTIVE_PEDIDOS}}" href="panel-vendedor-pedidos.html">
+        <i class="fas fa-shopping-bag"></i> Pedidos
+      </a>
+      <a class="nav-link {{ACTIVE_VENTAS}}" href="panel-vendedor-ventas.html">
+        <i class="fas fa-chart-line"></i> Mis Ventas
+      </a>
+      <a class="nav-link {{ACTIVE_ESTADISTICAS}}" href="panel-vendedor-estadisticas.html">
+        <i class="fas fa-chart-bar"></i> Estadísticas
+      </a>
+      <a class="nav-link {{ACTIVE_CONFIG}}" href="panel-vendedor-config.html">
+        <i class="fas fa-cog"></i> Configuración
+      </a>
+    </nav>
+  </div>
+</div>
+
+<script>
+  // Inicialización del sidebar (se ejecuta cuando el componente se carga)
+  if (typeof window.initSidebar === 'function') {
+    window.initSidebar();
+  }
+</script>

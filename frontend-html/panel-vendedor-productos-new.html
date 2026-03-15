@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mis Productos - Tienda Online</title>
+  <meta name="description" content="Gestiona tus productos en el panel de vendedor">
+  <meta name="keywords" content="productos, vendedor, gestión, tienda online">
+  
+  <!-- CSS Base -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="styles.css">
+  
+  <!-- CSS Adicional para el panel de vendedor -->
+  <style>
+    .vendedor-sidebar {
+      background: #12151a;
+      min-height: calc(100vh - 120px);
+      border-radius: 0 var(--app-radius) var(--app-radius) 0;
+      padding: 1.5rem 0;
+    }
+
+    .vendedor-sidebar .nav-link {
+      color: #d5dae3;
+      padding: 0.75rem 1.5rem;
+      border-radius: 0;
+      transition: all 0.3s ease;
+      border-left: 3px solid transparent;
+    }
+
+    .vendedor-sidebar .nav-link:hover,
+    .vendedor-sidebar .nav-link.active {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--app-brand);
+      border-left-color: var(--app-brand);
+    }
+
+    .vendedor-sidebar .nav-link i {
+      width: 20px;
+      margin-right: 0.75rem;
+    }
+
+    .vendedor-content {
+      padding: 2rem;
+    }
+
+    .page-header {
+      background: var(--app-surface);
+      border: 1px solid var(--app-border);
+      border-radius: var(--app-radius);
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .page-header h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      margin: 0;
+      color: var(--app-text);
+    }
+
+    .page-header .breadcrumb {
+      background: none;
+      padding: 0;
+      margin: 0.5rem 0 0 0;
+    }
+
+    .content-section {
+      background: var(--app-surface);
+      border: 1px solid var(--app-border);
+      border-radius: var(--app-radius);
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .product-card {
+      background: var(--app-surface);
+      border: 1px solid var(--app-border);
+      border-radius: var(--app-radius);
+      overflow: hidden;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .product-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--app-shadow);
+    }
+
+    .product-card img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+    }
+
+    .product-card .card-body {
+      padding: 1rem;
+    }
+
+    .stock-badge {
+      font-size: 0.75rem;
+      padding: 0.25rem 0.5rem;
+      border-radius: 12px;
+    }
+
+    .stock-high {
+      background: rgba(0, 166, 80, 0.1);
+      color: var(--app-accent);
+    }
+
+    .stock-medium {
+      background: rgba(255, 230, 0, 0.1);
+      color: var(--app-brand);
+    }
+
+    .stock-low {
+      background: rgba(231, 76, 60, 0.1);
+      color: #e74c3c;
+    }
+
+    @media (max-width: 768px) {
+      .vendedor-sidebar {
+        min-height: auto;
+        margin-bottom: 1rem;
+      }
+
+      .vendedor-content {
+        padding: 1rem;
+      }
+    }
+  </style>
+  
+  <!-- Variables de página para JavaScript -->
+  <script>
+    window.PAGE_CONFIG = {
+      title: 'Mis Productos',
+      section: 'productos',
+      userRole: 'vendedor',
+      requiresAuth: 'true',
+      requiresVendedor: 'true',
+      requiresAdmin: 'false',
+      breadcrumb: [
+        { label: 'Inicio', url: 'index.html' },
+        { label: 'Panel de Vendedor', url: 'panel-vendedor.html' },
+        { label: 'Mis Productos', url: 'panel-vendedor-productos.html' }
+      ],
+      bodyClass: '',
+      headerClass: 'ml-header-dark',
+      mainClass: 'container-fluid my-4',
+      includeSidebar: true
+    };
+  </script>
+</head>
+<body>
+  <!-- Header -->
+  {{HEADER}}
+  
+  <!-- Breadcrumb -->
+  {{BREADCRUMB}}
+  
+  <!-- Contenido Principal -->
+  <main class="container-fluid my-4">
+    <div class="row">
+      <!-- Sidebar de navegación -->
+      {{SIDEBAR_VENDEDOR}}
+
+      <!-- Contenido principal -->
+      <div class="col-lg-10 col-md-9">
+        <div class="vendedor-content">
+          <div class="page-header">
+            <h1>Mis Productos</h1>
+            <div class="d-flex gap-2">
+              <button class="btn btn-primary" onclick="window.location.href='panel-vendedor-agregar.html'">
+                <i class="fas fa-plus me-1"></i> Agregar Producto
+              </button>
+              <button class="btn btn-outline-secondary" onclick="exportarProductos()">
+                <i class="fas fa-download me-1"></i> Exportar
+              </button>
+            </div>
+          </div>
+
+          <div class="content-section">
+            <!-- Filtros y búsqueda -->
+            <div class="row mb-4">
+              <div class="col-md-4">
+                <div class="input-group">
+                  <span class="input-group-text"><i class="fas fa-search"></i></span>
+                  <input type="text" class="form-control" id="buscarProducto" placeholder="Buscar productos...">
+                </div>
+              </div>
+              <div class="col-md-3">
+                <select class="form-select" id="filtroCategoria">
+                  <option value="">Todas las categorías</option>
+                  <option value="Electrónica">Electrónica</option>
+                  <option value="Ropa">Ropa</option>
+                  <option value="Hogar">Hogar</option>
+                  <option value="Deportes">Deportes</option>
+                  <option value="Libros">Libros</option>
+                  <option value="Otros">Otros</option>
+                </select>
+              </div>
+              <div class="col-md-3">
+                <select class="form-select" id="filtroEstado">
+                  <option value="">Todos los estados</option>
+                  <option value="activo">Activo</option>
+                  <option value="inactivo">Inactivo</option>
+                  <option value="agotado">Agotado</option>
+                </select>
+              </div>
+              <div class="col-md-2">
+                <select class="form-select" id="ordenarPor">
+                  <option value="nombre">Nombre</option>
+                  <option value="precio-asc">Precio: Menor a Mayor</option>
+                  <option value="precio-desc">Precio: Mayor a Menor</option>
+                  <option value="stock">Stock</option>
+                  <option value="creado">Fecha de Creación</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Estadísticas rápidas -->
+            <div class="row mb-4">
+              <div class="col-md-3">
+                <div class="d-flex align-items-center p-3 bg-light rounded">
+                  <i class="fas fa-box fa-2x text-primary me-3"></i>
+                  <div>
+                    <div class="h4 mb-0" id="totalProductos">0</div>
+                    <div class="text-muted small">Total Productos</div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="d-flex align-items-center p-3 bg-light rounded">
+                  <i class="fas fa-check-circle fa-2x text-success me-3"></i>
+                  <div>
+                    <div class="h4 mb-0" id="productosActivos">0</div>
+                    <div class="text-muted small">Activos</div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="d-flex align-items-center p-3 bg-light rounded">
+                  <i class="fas fa-exclamation-triangle fa-2x text-warning me-3"></i>
+                  <div>
+                    <div class="h4 mb-0" id="stockBajo">0</div>
+                    <div class="text-muted small">Stock Bajo</div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="d-flex align-items-center p-3 bg-light rounded">
+                  <i class="fas fa-times-circle fa-2x text-danger me-3"></i>
+                  <div>
+                    <div class="h4 mb-0" id="agotados">0</div>
+                    <div class="text-muted small">Agotados</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Grid de productos -->
+            <div class="product-grid" id="productosGrid">
+              <div class="text-center py-5">
+                <div class="spinner-border text-primary" role="status">
+                  <span class="visually-hidden">Cargando...</span>
+                </div>
+                <p class="mt-2 text-muted">Cargando productos...</p>
+              </div>
+            </div>
+
+            <!-- Paginación -->
+            <nav aria-label="Paginación de productos" class="mt-4">
+              <ul class="pagination justify-content-center" id="pagination">
+                <!-- La paginación se generará dinámicamente -->
+              </ul>
+            </nav>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+  
+  <!-- Footer -->
+  {{FOOTER}}
+  
+  <!-- Scripts Base -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="components/loader.js"></script>
+  <script src="auth.js"></script>
+  <script src="cart.js"></script>
+  <script src="ui.js"></script>
+  
+  <!-- Scripts Adicionales -->
+  <script>
+    // Función específica de la página
+    window.initPage = function() {
+      console.log('🚀 Inicializando página de productos...');
+      cargarProductos();
+      configurarFiltros();
+    };
+
+    function cargarProductos() {
+      // Simular carga de productos
+      setTimeout(() => {
+        const productos = [
+          { id: 1, nombre: 'iPhone 13', precio: 999, categoria: 'Electrónica', stock: 3, imagen: 'https://via.placeholder.com/280x200', estado: 'activo' },
+          { id: 2, nombre: 'Laptop Dell', precio: 1299, categoria: 'Electrónica', stock: 15, imagen: 'https://via.placeholder.com/280x200', estado: 'activo' },
+          { id: 3, nombre: 'Camiseta Nike', precio: 49, categoria: 'Ropa', stock: 0, imagen: 'https://via.placeholder.com/280x200', estado: 'agotado' }
+        ];
+
+        renderizarProductos(productos);
+        actualizarEstadisticas(productos);
+      }, 1000);
+    }
+
+    function renderizarProductos(productos) {
+      const grid = document.getElementById('productosGrid');
+      
+      if (productos.length === 0) {
+        grid.innerHTML = `
+          <div class="col-12 text-center py-5">
+            <i class="fas fa-box-open fa-3x text-muted mb-3"></i>
+            <h5 class="text-muted">No tienes productos</h5>
+            <p class="text-muted">Comienza agregando tu primer producto</p>
+            <button class="btn btn-primary" onclick="window.location.href='panel-vendedor-agregar.html'">
+              <i class="fas fa-plus me-1"></i> Agregar Producto
+            </button>
+          </div>
+        `;
+        return;
+      }
+
+      grid.innerHTML = productos.map(producto => {
+        const stockClass = producto.stock === 0 ? 'stock-low' : 
+                         producto.stock < 5 ? 'stock-medium' : 'stock-high';
+        const stockText = producto.stock === 0 ? 'Agotado' : `Stock: ${producto.stock}`;
+        
+        return `
+          <div class="product-card">
+            <img src="${producto.imagen}" alt="${producto.nombre}">
+            <div class="card-body">
+              <h6 class="fw-bold">${producto.nombre}</h6>
+              <p class="text-muted small">${producto.categoria}</p>
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="fw-bold">$${producto.precio}</span>
+                <span class="stock-badge ${stockClass}">${stockText}</span>
+              </div>
+              <div class="d-flex gap-1">
+                <button class="btn btn-sm btn-outline-primary" onclick="editarProducto(${producto.id})">
+                  <i class="fas fa-edit"></i> Editar
+                </button>
+                <button class="btn btn-sm btn-outline-danger" onclick="eliminarProducto(${producto.id})">
+                  <i class="fas fa-trash"></i> Eliminar
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function actualizarEstadisticas(productos) {
+      document.getElementById('totalProductos').textContent = productos.length;
+      document.getElementById('productosActivos').textContent = productos.filter(p => p.estado === 'activo').length;
+      document.getElementById('stockBajo').textContent = productos.filter(p => p.stock > 0 && p.stock < 5).length;
+      document.getElementById('agotados').textContent = productos.filter(p => p.stock === 0).length;
+    }
+
+    function configurarFiltros() {
+      document.getElementById('buscarProducto').addEventListener('input', filtrarProductos);
+      document.getElementById('filtroCategoria').addEventListener('change', filtrarProductos);
+      document.getElementById('filtroEstado').addEventListener('change', filtrarProductos);
+      document.getElementById('ordenarPor').addEventListener('change', filtrarProductos);
+    }
+
+    function filtrarProductos() {
+      console.log('Filtrando productos...');
+    }
+
+    function editarProducto(id) {
+      console.log('Editando producto:', id);
+      alert('Función de edición en desarrollo');
+    }
+
+    function eliminarProducto(id) {
+      if (confirm('¿Estás seguro de que deseas eliminar este producto?')) {
+        console.log('Eliminando producto:', id);
+        alert('Producto eliminado correctamente');
+        cargarProductos();
+      }
+    }
+
+    function exportarProductos() {
+      console.log('Exportando productos...');
+      alert('Función de exportación en desarrollo');
+    }
+  </script>
+</body>
+</html>
