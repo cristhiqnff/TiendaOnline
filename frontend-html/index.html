@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -68,164 +67,123 @@
               <p class="mb-4">Envíos en 24/48 horas. Ofertas por tiempo limitado.</p>
               <div class="d-flex gap-2 flex-wrap justify-content-center">
                 <a class="btn btn-dark" href="#catalogo">Ver ofertas</a>
-                <a class="btn btn-outline-dark" href="carrito.html">Ir al carrito</a>
+                <a class="btn btn-outline-light" href="categorias.html">Todas las categorías</a>
               </div>
             </div>
           </div>
-
           <div class="carousel-item">
-            <img src="img/banner2-placeholder.svg" class="d-block w-100" alt="Banner 2 - Medios de pago">
+            <img src="img/banner2-placeholder.svg" class="d-block w-100" alt="Banner 2 - Envío gratis">
             <div class="carousel-caption text-center">
-              <div class="ml-hero-badge mb-2">PAGA COMO QUIERAS</div>
-              <h2 class="display-6 fw-bold mb-2">Cuotas y medios de pago</h2>
-              <p class="mb-4">Tarjeta, transferencia o efectivo. Elige la opción que más te convenga.</p>
+              <div class="ml-hero-badge mb-2">ENVÍO GRATIS</div>
+              <h1 class="display-6 fw-bold mb-2">En compras mayores a $50.000</h1>
+              <p class="mb-4">Aprovecha nuestras ofertas especiales con envío gratuito.</p>
               <div class="d-flex gap-2 flex-wrap justify-content-center">
-                <a class="btn btn-dark" href="#catalogo">Explorar productos</a>
-                <a class="btn btn-outline-dark" href="checkout.html">Finalizar compra</a>
+                <a class="btn btn-dark" href="#catalogo">Comprar ahora</a>
+                <a class="btn btn-outline-light" href="carrito.html">Ver carrito</a>
               </div>
             </div>
           </div>
-
           <div class="carousel-item">
-            <img src="img/banner3-placeholder.svg" class="d-block w-100" alt="Banner 3 - Ofertas del día">
+            <img src="img/banner3-placeholder.svg" class="d-block w-100" alt="Banner 3 - Pago seguro">
             <div class="carousel-caption text-center">
-              <div class="ml-hero-badge mb-2">OFERTAS DEL DÍA</div>
-              <h2 class="display-6 fw-bold mb-2">Descuentos imperdibles</h2>
-              <p class="mb-4">Renovamos ofertas todos los días. Aprovecha antes de que se agoten.</p>
+              <div class="ml-hero-badge mb-2">PAGO SEGURO</div>
+              <h1 class="display-6 fw-bold mb-2">100% Protegido</h1>
+              <p class="mb-4">Métodos de pago seguros y protección de datos.</p>
               <div class="d-flex gap-2 flex-wrap justify-content-center">
-                <a class="btn btn-dark" href="#catalogo">Ver catálogo</a>
-                <a class="btn btn-outline-dark" href="carrito.html">Ver carrito</a>
+                <a class="btn btn-dark" href="#catalogo">Comprar con confianza</a>
+                <a class="btn btn-outline-light" href="mis-pedidos.html">Mis pedidos</a>
               </div>
             </div>
           </div>
         </div>
 
-        <button class="carousel-control-prev" type="button" data-bs-target="#mlCarousel" data-bs-slide="prev" aria-label="Slide anterior">
+        <button class="carousel-control-prev" type="button" data-bs-target="#mlCarousel" data-bs-slide="prev">
           <span class="carousel-control-prev-icon" aria-hidden="true"></span>
           <span class="visually-hidden">Anterior</span>
         </button>
-        <button class="carousel-control-next" type="button" data-bs-target="#mlCarousel" data-bs-slide="next" aria-label="Siguiente slide">
+        <button class="carousel-control-next" type="button" data-bs-target="#mlCarousel" data-bs-slide="next">
           <span class="carousel-control-next-icon" aria-hidden="true"></span>
           <span class="visually-hidden">Siguiente</span>
         </button>
       </div>
     </section>
 
-    <section class="mb-4 ml-section-card">
-      <div class="d-flex align-items-center justify-content-between mb-3">
-        <h2 class="h4 m-0">Accesos rápidos</h2>
+    <section class="mb-4" id="catalogo">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="h4 mb-0">Catálogo de productos</h2>
+        <div class="d-flex gap-2 align-items-center">
+          <select class="form-select form-select-sm" id="ordenarPor">
+            <option value="">Ordenar por</option>
+            <option value="nombre_asc">Nombre A-Z</option>
+            <option value="nombre_desc">Nombre Z-A</option>
+            <option value="precio_asc">Precio: Menor a Mayor</option>
+            <option value="precio_desc">Precio: Mayor a Menor</option>
+          </select>
+          <select class="form-select form-select-sm" id="filtrarCategoria">
+            <option value="">Todas las categorías</option>
+          </select>
+        </div>
       </div>
+      <div id="productos" class="row g-3">
+        <!-- Los productos se cargarán dinámicamente -->
+      </div>
+      <div class="text-center mt-4">
+        <button class="btn btn-outline-primary" id="cargarMas">Cargar más productos</button>
+      </div>
+    </section>
+
+    <section class="mb-4">
       <div class="row g-3">
-        <div class="col-6 col-md-4 col-lg-2">
-          <a href="categorias.html" class="text-decoration-none text-dark">
-            <div class="ml-quickcard-icon">
-              <div class="ml-quickcard-icon-img">🚚</div>
-              <div class="ml-quickcard-title">Envío gratis</div>
-              <div class="ml-quickcard-sub">En pedidos seleccionados</div>
+        <div class="col-md-4">
+          <div class="card h-100">
+            <div class="card-body">
+              <h5 class="card-title">🚚 Envíos rápidos</h5>
+              <p class="card-text">Recibe tus pedidos en 24/48 horas en Bogotá y principales ciudades.</p>
             </div>
-          </a>
+          </div>
         </div>
-        <div class="col-6 col-md-4 col-lg-2">
-          <a href="carrito.html" class="text-decoration-none text-dark">
-            <div class="ml-quickcard-icon">
-              <div class="ml-quickcard-icon-img">🛒</div>
-              <div class="ml-quickcard-title">Compra tu carrito</div>
-              <div class="ml-quickcard-sub">Rápido y seguro</div>
+        <div class="col-md-4">
+          <div class="card h-100">
+            <div class="card-body">
+              <h5 class="card-title">🔒 Pago seguro</h5>
+              <p class="card-text">Métodos de pago seguros con protección de datos y transacciones cifradas.</p>
             </div>
-          </a>
+          </div>
         </div>
-        <div class="col-6 col-md-4 col-lg-2">
-          <a href="categorias.html" class="text-decoration-none text-dark">
-            <div class="ml-quickcard-icon">
-              <div class="ml-quickcard-icon-img">📍</div>
-              <div class="ml-quickcard-title">Ubicación</div>
-              <div class="ml-quickcard-sub">Calcula envíos</div>
+        <div class="col-md-4">
+          <div class="card h-100">
+            <div class="card-body">
+              <h5 class="card-title">🎁 Ofertas especiales</h5>
+              <p class="card-text">Descuentos exclusivos y promociones semanales para nuestros clientes.</p>
             </div>
-          </a>
-        </div>
-        <div class="col-6 col-md-4 col-lg-2">
-          <a href="#vistos" class="text-decoration-none text-dark">
-            <div class="ml-quickcard-icon">
-              <div class="ml-quickcard-icon-img">👁️</div>
-              <div class="ml-quickcard-title">Visto recientemente</div>
-              <div class="ml-quickcard-sub">Vuelve a tus items</div>
-            </div>
-          </a>
-        </div>
-        <div class="col-6 col-md-4 col-lg-2">
-          <a href="checkout.html" class="text-decoration-none text-dark">
-            <div class="ml-quickcard-icon">
-              <div class="ml-quickcard-icon-img">💳</div>
-              <div class="ml-quickcard-title">Medios de pago</div>
-              <div class="ml-quickcard-sub">Tarjeta o efectivo</div>
-            </div>
-          </a>
-        </div>
-        <div class="col-6 col-md-4 col-lg-2">
-          <a href="#catalogo" class="text-decoration-none text-dark">
-            <div class="ml-quickcard-icon">
-              <div class="ml-quickcard-icon-img">🔥</div>
-              <div class="ml-quickcard-title">Ofertas</div>
-              <div class="ml-quickcard-sub">Hasta 40% OFF</div>
-            </div>
-          </a>
+          </div>
         </div>
       </div>
-    </section>
-
-    <section id="vistos" class="mb-4 ml-section-card">
-      <div class="d-flex align-items-center justify-content-between mb-3">
-        <h2 class="h4 m-0">Visto recientemente</h2>
-        <button class="btn btn-sm btn-outline-dark" type="button" id="btnLimpiarVistos">Limpiar</button>
-      </div>
-      <div id="vistosList" class="row"></div>
-    </section>
-
-    <section class="mb-4 ml-section-card">
-      <div class="d-flex align-items-center justify-content-between mb-3">
-        <h2 class="h4 m-0">Más vendidos por categoría</h2>
-        <a class="text-decoration-none" href="categorias.html">Ver categorías</a>
-      </div>
-      <div id="masVendidos" class="row g-3"></div>
-    </section>
-
-    <section id="catalogo" class="mt-2 ml-section-card">
-      <div class="d-flex align-items-center justify-content-between mb-3">
-        <h2 class="h4 m-0">Catálogo</h2>
-        <a class="text-decoration-none" href="carrito.html">Ver carrito</a>
-      </div>
-      <div id="productos" class="row"></div>
     </section>
   </main>
-  <footer class="bg-dark text-white pt-5 pb-3 mt-5">
+
+  <footer class="bg-dark text-light py-4 mt-5">
     <div class="container">
-      <div class="row gy-4 mb-4">
-        <div class="col-12 col-md-4">
-          <h2 class="h5 fw-bold mb-3 text-white">Sobre nosotros</h2>
-          <p class="text-muted small">Somos tu mejor opción en compras online. Ofrecemos precios competitivos, rapidez en entregas y atención personalizada en cualquier momento.</p>
+      <div class="row">
+        <div class="col-md-4">
+          <h5>Tienda Online</h5>
+          <p>Tu tienda de confianza con los mejores productos y precios.</p>
         </div>
-        <div class="col-6 col-md-2">
-          <h2 class="h6 fw-semibold mb-3 text-white">Atención al cliente</h2>
-          <ul class="list-unstyled small d-flex flex-column gap-2 mb-0">
-            <li><a href="#" class="text-decoration-none text-muted">Centro de ayuda</a></li>
-            <li><a href="#" class="text-decoration-none text-muted">Devoluciones</a></li>
-            <li><a href="#" class="text-decoration-none text-muted">Contacto y FAQs</a></li>
+        <div class="col-md-4">
+          <h5>Enlaces rápidos</h5>
+          <ul class="list-unstyled">
+            <li><a href="index.html" class="text-light text-decoration-none">Inicio</a></li>
+            <li><a href="categorias.html" class="text-light text-decoration-none">Categorías</a></li>
+            <li><a href="mis-pedidos.html" class="text-light text-decoration-none">Mis pedidos</a></li>
+            <li><a href="carrito.html" class="text-light text-decoration-none">Carrito</a></li>
           </ul>
         </div>
-        <div class="col-6 col-md-3">
-          <h2 class="h6 fw-semibold mb-3 text-white">Métodos de pago</h2>
-          <ul class="list-unstyled small d-flex flex-column gap-2 mb-0">
-            <li class="text-muted">Tarjetas de crédito y débito</li>
-            <li class="text-muted">Transferencia bancaria / PSE</li>
-            <li class="text-muted">Efectivo en corresponsales</li>
-          </ul>
-        </div>
-        <div class="col-12 col-md-3">
-          <h2 class="h6 fw-semibold mb-3 text-white">Síguenos</h2>
-          <ul class="list-unstyled small d-flex gap-3 mb-0">
-            <li><a href="#" class="text-decoration-none text-muted" aria-label="Facebook">📘 Facebook</a></li>
-            <li><a href="#" class="text-decoration-none text-muted" aria-label="Instagram">📸 Instagram</a></li>
-            <li><a href="#" class="text-decoration-none text-muted" aria-label="Twitter">🐦 Twitter</a></li>
+        <div class="col-md-4">
+          <h5>Contacto</h5>
+          <ul class="list-unstyled">
+            <li>Email: info@tiendaonline.com</li>
+            <li>Teléfono: 300-123-4567</li>
+            <li>Bogotá, Colombia</li>
           </ul>
         </div>
       </div>
@@ -234,6 +192,8 @@
       </div>
     </div>
   </footer>
+
+  <!-- Scripts en orden correcto -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
   <script src="session.js"></script>
   <script src="route-guard.js"></script>
@@ -244,250 +204,3 @@
   <script src="main.js"></script>
 </body>
 </html>
-=======
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Tienda online con ofertas, envíos rápidos y múltiples medios de pago.">
-  <meta name="author" content="Tienda Online">
-  <meta name="keywords" content="tienda online, ecommerce, ofertas, compras online">
-  <title>Tienda Online</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
-  <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-  <header class="ml-header ml-header-dark sticky-top shadow-sm">
-    <div class="container py-2">
-      <div class="d-flex gap-3 align-items-center">
-        <a class="ml-brand" href="index.html" aria-label="Ir al Inicio de Tienda Online">Tienda Online</a>
-        <form class="flex-grow-1 position-relative" role="search" id="formBuscador">
-          <div class="input-group">
-            <span class="input-group-text bg-white bg-opacity-10 border-0 text-white" id="search-addon" aria-hidden="true">🔍</span>
-            <input class="form-control" id="busqueda" type="search" placeholder="Buscar productos, categoría o marca..." aria-label="Buscar" aria-describedby="search-addon" autocomplete="off">
-          </div>
-        </form>
-        <a class="btn btn-outline-light position-relative" href="carrito.html" aria-label="Carrito">
-          Carrito
-          <span id="cartCount" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="display:none;">0</span>
-        </a>
-      </div>
-      <div class="d-flex gap-3 mt-2 small align-items-center flex-wrap">
-        <a class="text-dark text-decoration-none" href="categorias.html">Categorías</a>
-        <a class="text-dark text-decoration-none" href="producto.html">Productos</a>
-        <a class="text-dark text-decoration-none" href="mis-pedidos.html">Mis pedidos</a>
-        <span id="navAdmin" style="display:none;"><a class="text-dark text-decoration-none" href="admin.html">Administración</a></span>
-        <span id="navVendedor" style="display:none;"><a class="text-dark text-decoration-none" href="panel-vendedor.html">Panel de vendedor</a></span>
-        <span id="navGuest"><a class="text-dark text-decoration-none" href="login.html">Iniciar sesión</a> <a class="text-dark text-decoration-none" href="registro.html">Registrarse</a></span>
-        <span id="navUser" style="display:none;" class="ms-auto d-flex gap-3 align-items-center">
-          <a class="text-dark text-decoration-none" href="perfil.html"><span id="navUserName">Mi cuenta</span></a>
-          <button class="btn btn-sm btn-outline-dark" type="button" id="btnLogout">Cerrar sesión</button>
-        </span>
-      </div>
-    </div>
-  </header>
-  <nav class="bg-light border-bottom">
-    <div class="container py-2">
-      <div class="d-flex align-items-center gap-3">
-        <a href="index.html" class="text-decoration-none text-muted">Inicio</a>
-        <span class="text-muted">/</span>
-        <span class="text-dark fw-semibold">Destacados</span>
-      </div>
-    </div>
-  </nav>
-  <main class="container my-4">
-    <section class="mb-4 ml-section-card">
-      <div id="mlCarousel" class="carousel slide ml-carousel" data-bs-ride="carousel">
-        <div class="carousel-indicators">
-          <button type="button" data-bs-target="#mlCarousel" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
-          <button type="button" data-bs-target="#mlCarousel" data-bs-slide-to="1" aria-label="Slide 2"></button>
-          <button type="button" data-bs-target="#mlCarousel" data-bs-slide-to="2" aria-label="Slide 3"></button>
-        </div>
-
-        <div class="carousel-inner">
-          <div class="carousel-item active">
-            <img src="img/banner1-placeholder.svg" class="d-block w-100" alt="Banner 1 - Remates de bodega">
-            <div class="carousel-caption text-center">
-              <div class="ml-hero-badge mb-2">ARMA TU CARRITO</div>
-              <h1 class="display-6 fw-bold mb-2">Remates de bodega</h1>
-              <p class="mb-4">Envíos en 24/48 horas. Ofertas por tiempo limitado.</p>
-              <div class="d-flex gap-2 flex-wrap justify-content-center">
-                <a class="btn btn-dark" href="#catalogo">Ver ofertas</a>
-                <a class="btn btn-outline-dark" href="carrito.html">Ir al carrito</a>
-              </div>
-            </div>
-          </div>
-
-          <div class="carousel-item">
-            <img src="img/banner2-placeholder.svg" class="d-block w-100" alt="Banner 2 - Medios de pago">
-            <div class="carousel-caption text-center">
-              <div class="ml-hero-badge mb-2">PAGA COMO QUIERAS</div>
-              <h2 class="display-6 fw-bold mb-2">Cuotas y medios de pago</h2>
-              <p class="mb-4">Tarjeta, transferencia o efectivo. Elige la opción que más te convenga.</p>
-              <div class="d-flex gap-2 flex-wrap justify-content-center">
-                <a class="btn btn-dark" href="#catalogo">Explorar productos</a>
-                <a class="btn btn-outline-dark" href="checkout.html">Finalizar compra</a>
-              </div>
-            </div>
-          </div>
-
-          <div class="carousel-item">
-            <img src="img/banner3-placeholder.svg" class="d-block w-100" alt="Banner 3 - Ofertas del día">
-            <div class="carousel-caption text-center">
-              <div class="ml-hero-badge mb-2">OFERTAS DEL DÍA</div>
-              <h2 class="display-6 fw-bold mb-2">Descuentos imperdibles</h2>
-              <p class="mb-4">Renovamos ofertas todos los días. Aprovecha antes de que se agoten.</p>
-              <div class="d-flex gap-2 flex-wrap justify-content-center">
-                <a class="btn btn-dark" href="#catalogo">Ver catálogo</a>
-                <a class="btn btn-outline-dark" href="carrito.html">Ver carrito</a>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <button class="carousel-control-prev" type="button" data-bs-target="#mlCarousel" data-bs-slide="prev" aria-label="Slide anterior">
-          <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-          <span class="visually-hidden">Anterior</span>
-        </button>
-        <button class="carousel-control-next" type="button" data-bs-target="#mlCarousel" data-bs-slide="next" aria-label="Siguiente slide">
-          <span class="carousel-control-next-icon" aria-hidden="true"></span>
-          <span class="visually-hidden">Siguiente</span>
-        </button>
-      </div>
-    </section>
-
-    <section class="mb-4 ml-section-card">
-      <div class="d-flex align-items-center justify-content-between mb-3">
-        <h2 class="h4 m-0">Accesos rápidos</h2>
-      </div>
-      <div class="row g-3">
-        <div class="col-6 col-md-4 col-lg-2">
-          <a href="categorias.html" class="text-decoration-none text-dark">
-            <div class="ml-quickcard-icon">
-              <div class="ml-quickcard-icon-img">🚚</div>
-              <div class="ml-quickcard-title">Envío gratis</div>
-              <div class="ml-quickcard-sub">En pedidos seleccionados</div>
-            </div>
-          </a>
-        </div>
-        <div class="col-6 col-md-4 col-lg-2">
-          <a href="carrito.html" class="text-decoration-none text-dark">
-            <div class="ml-quickcard-icon">
-              <div class="ml-quickcard-icon-img">🛒</div>
-              <div class="ml-quickcard-title">Compra tu carrito</div>
-              <div class="ml-quickcard-sub">Rápido y seguro</div>
-            </div>
-          </a>
-        </div>
-        <div class="col-6 col-md-4 col-lg-2">
-          <a href="categorias.html" class="text-decoration-none text-dark">
-            <div class="ml-quickcard-icon">
-              <div class="ml-quickcard-icon-img">📍</div>
-              <div class="ml-quickcard-title">Ubicación</div>
-              <div class="ml-quickcard-sub">Calcula envíos</div>
-            </div>
-          </a>
-        </div>
-        <div class="col-6 col-md-4 col-lg-2">
-          <a href="#vistos" class="text-decoration-none text-dark">
-            <div class="ml-quickcard-icon">
-              <div class="ml-quickcard-icon-img">👁️</div>
-              <div class="ml-quickcard-title">Visto recientemente</div>
-              <div class="ml-quickcard-sub">Vuelve a tus items</div>
-            </div>
-          </a>
-        </div>
-        <div class="col-6 col-md-4 col-lg-2">
-          <a href="checkout.html" class="text-decoration-none text-dark">
-            <div class="ml-quickcard-icon">
-              <div class="ml-quickcard-icon-img">💳</div>
-              <div class="ml-quickcard-title">Medios de pago</div>
-              <div class="ml-quickcard-sub">Tarjeta o efectivo</div>
-            </div>
-          </a>
-        </div>
-        <div class="col-6 col-md-4 col-lg-2">
-          <a href="#catalogo" class="text-decoration-none text-dark">
-            <div class="ml-quickcard-icon">
-              <div class="ml-quickcard-icon-img">🔥</div>
-              <div class="ml-quickcard-title">Ofertas</div>
-              <div class="ml-quickcard-sub">Hasta 40% OFF</div>
-            </div>
-          </a>
-        </div>
-      </div>
-    </section>
-
-    <section id="vistos" class="mb-4 ml-section-card">
-      <div class="d-flex align-items-center justify-content-between mb-3">
-        <h2 class="h4 m-0">Visto recientemente</h2>
-        <button class="btn btn-sm btn-outline-dark" type="button" id="btnLimpiarVistos">Limpiar</button>
-      </div>
-      <div id="vistosList" class="row"></div>
-    </section>
-
-    <section class="mb-4 ml-section-card">
-      <div class="d-flex align-items-center justify-content-between mb-3">
-        <h2 class="h4 m-0">Más vendidos por categoría</h2>
-        <a class="text-decoration-none" href="categorias.html">Ver categorías</a>
-      </div>
-      <div id="masVendidos" class="row g-3"></div>
-    </section>
-
-    <section id="catalogo" class="mt-2 ml-section-card">
-      <div class="d-flex align-items-center justify-content-between mb-3">
-        <h2 class="h4 m-0">Catálogo</h2>
-        <a class="text-decoration-none" href="carrito.html">Ver carrito</a>
-      </div>
-      <div id="productos" class="row"></div>
-    </section>
-  </main>
-  <footer class="bg-dark text-white pt-5 pb-3 mt-5">
-    <div class="container">
-      <div class="row gy-4 mb-4">
-        <div class="col-12 col-md-4">
-          <h2 class="h5 fw-bold mb-3 text-white">Sobre nosotros</h2>
-          <p class="text-muted small">Somos tu mejor opción en compras online. Ofrecemos precios competitivos, rapidez en entregas y atención personalizada en cualquier momento.</p>
-        </div>
-        <div class="col-6 col-md-2">
-          <h2 class="h6 fw-semibold mb-3 text-white">Atención al cliente</h2>
-          <ul class="list-unstyled small d-flex flex-column gap-2 mb-0">
-            <li><a href="#" class="text-decoration-none text-muted">Centro de ayuda</a></li>
-            <li><a href="#" class="text-decoration-none text-muted">Devoluciones</a></li>
-            <li><a href="#" class="text-decoration-none text-muted">Contacto y FAQs</a></li>
-          </ul>
-        </div>
-        <div class="col-6 col-md-3">
-          <h2 class="h6 fw-semibold mb-3 text-white">Métodos de pago</h2>
-          <ul class="list-unstyled small d-flex flex-column gap-2 mb-0">
-            <li class="text-muted">Tarjetas de crédito y débito</li>
-            <li class="text-muted">Transferencia bancaria / PSE</li>
-            <li class="text-muted">Efectivo en corresponsales</li>
-          </ul>
-        </div>
-        <div class="col-12 col-md-3">
-          <h2 class="h6 fw-semibold mb-3 text-white">Síguenos</h2>
-          <ul class="list-unstyled small d-flex gap-3 mb-0">
-            <li><a href="#" class="text-decoration-none text-muted" aria-label="Facebook">📘 Facebook</a></li>
-            <li><a href="#" class="text-decoration-none text-muted" aria-label="Instagram">📸 Instagram</a></li>
-            <li><a href="#" class="text-decoration-none text-muted" aria-label="Twitter">🐦 Twitter</a></li>
-          </ul>
-        </div>
-      </div>
-      <div class="border-top border-secondary pt-3 text-center small text-muted">
-        © <span id="currentYear"></span> Tienda Online — Todos los derechos reservados. <a href="#" class="text-muted text-decoration-none ms-2">Privacidad</a>
-      </div>
-    </div>
-  </footer>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="session.js"></script>
-  <script src="route-guard.js"></script>
-  <script src="universal-init.js"></script>
-  <script src="cart.js"></script>
-  <script src="products.js"></script>
-  <script src="ui.js"></script>
-  <script src="main.js"></script>
-</body>
-</html>
->>>>>>> 9a3349cf38f58812a05b80794fd85dd2c5194e20

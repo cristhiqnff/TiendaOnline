@@ -152,7 +152,7 @@ document.getElementById('checkoutForm').onsubmit = async function (e) {
   const msg = document.getElementById('checkoutMsg');
   const btn = this.querySelector('button[type="submit"]');
   msg.textContent = '';
-  const token = localStorage.getItem('token');
+  const token = window.session.getToken();
   if (!token) {
     msg.innerHTML = '<div class="alert alert-warning">Debes <a href="login.html?redirect=checkout.html">iniciar sesión</a> para comprar.</div>';
     return;

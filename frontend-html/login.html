@@ -56,7 +56,7 @@
         if (res.ok && data.token) {
           // ✅ Usar el sistema de sesión centralizado
           if (data.usuario && window.session) {
-            window.session.setSession(data.usuario, data.token);
+            window.session.login(data.usuario, data.token);
             msg.innerHTML = '<div class="alert alert-success">¡Bienvenido!</div>';
             
             // Redirección según rol usando el sistema unificado

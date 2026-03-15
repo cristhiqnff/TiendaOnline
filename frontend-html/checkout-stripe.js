@@ -191,7 +191,7 @@ class StripeCheckout {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${window.session.getToken()}`
         },
         body: JSON.stringify({
           amount: this.orderData.total,
@@ -379,7 +379,7 @@ let checkout;
 
 document.addEventListener('DOMContentLoaded', () => {
   // Verificar autenticación
-  const token = localStorage.getItem('token');
+  const token = window.session.getToken();
   if (!token) {
     alert('Debes iniciar sesión para continuar con el pago');
     window.location.href = 'login.html';

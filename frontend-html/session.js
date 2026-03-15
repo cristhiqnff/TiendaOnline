@@ -37,6 +37,15 @@ window.session = {
   },
 
   /**
+   * Inicia sesión del usuario
+   */
+  login(user, token) {
+    localStorage.setItem("user", JSON.stringify(user));
+    localStorage.setItem("token", token);
+    this.updateNavbar();
+  },
+
+  /**
    * Actualiza la navegación según estado de sesión
    */
   updateNavbar() {

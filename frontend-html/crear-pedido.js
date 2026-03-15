@@ -54,7 +54,7 @@ class CrearPedido {
 
   async cargarProductos() {
     try {
-      const token = localStorage.getItem('token');
+      const token = window.session.getToken();
       const response = await fetch('http://localhost:5000/producto', {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -75,7 +75,7 @@ class CrearPedido {
 
   async cargarClientes() {
     try {
-      const token = localStorage.getItem('token');
+      const token = window.session.getToken();
       const response = await fetch('http://localhost:5000/usuario', {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -437,7 +437,7 @@ class CrearPedido {
 
   async confirmarPedido() {
     try {
-      const token = localStorage.getItem('token');
+      const token = window.session.getToken();
       const subtotal = this.carrito.reduce((sum, item) => sum + (item.precio_unitario * item.cantidad), 0);
       const iva = subtotal * 0.16;
       const envio = 99;

@@ -47,7 +47,7 @@ class EmpleadoCRUD {
 
     async cargarDatosIniciales() {
         try {
-            const token = localStorage.getItem('token');
+            const token = window.session.getToken();
             if (!token) {
                 window.location.href = 'login.html';
                 return;
@@ -88,7 +88,7 @@ class EmpleadoCRUD {
 
     async cargarMenuUsuario() {
         try {
-            const token = localStorage.getItem('token');
+            const token = window.session.getToken();
             const response = await fetch('/empleado/menu-usuario', {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
@@ -284,7 +284,7 @@ class EmpleadoCRUD {
 
     async cargarEmpleado(empleadoId) {
         try {
-            const token = localStorage.getItem('token');
+            const token = window.session.getToken();
             const response = await fetch(`/empleado/empleados/${empleadoId}`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
@@ -331,7 +331,7 @@ class EmpleadoCRUD {
 
     async guardarEmpleado() {
         try {
-            const token = localStorage.getItem('token');
+            const token = window.session.getToken();
             const idEmpleado = document.getElementById('idEmpleado').value;
             const empleadoData = {
                 nombre: document.getElementById('nombreEmpleado').value,
@@ -390,7 +390,7 @@ class EmpleadoCRUD {
         }
 
         try {
-            const token = localStorage.getItem('token');
+            const token = window.session.getToken();
             const response = await fetch(`/empleado/empleados/${empleadoId}`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${token}` }
@@ -431,7 +431,7 @@ class EmpleadoCRUD {
 
     async cargarRoles() {
         try {
-            const token = localStorage.getItem('token');
+            const token = window.session.getToken();
             const response = await fetch('/empleado/roles-empleado', {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
@@ -469,7 +469,7 @@ class EmpleadoCRUD {
 
     async cargarPerfiles() {
         try {
-            const token = localStorage.getItem('token');
+            const token = window.session.getToken();
             const response = await fetch('/empleado/perfiles', {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
@@ -512,7 +512,7 @@ class EmpleadoCRUD {
 
     async cargarMenu() {
         try {
-            const token = localStorage.getItem('token');
+            const token = window.session.getToken();
             const response = await fetch('/empleado/menu', {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
@@ -569,7 +569,7 @@ class EmpleadoCRUD {
 
     async cargarPermisosPorPerfil(perfilId) {
         try {
-            const token = localStorage.getItem('token');
+            const token = window.session.getToken();
             const response = await fetch(`/empleado/permisos/perfil/${perfilId}`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
